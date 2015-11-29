@@ -36,5 +36,7 @@ fn main() {
 }
 ```
 
+Other examples are in the examples directory.
+
 ## License
-MIT
+MIT (Examples are licensed under CC0)
