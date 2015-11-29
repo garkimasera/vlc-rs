@@ -198,7 +198,7 @@ impl libvlc_media_track_t {
     pub unsafe fn audio(&mut self) -> *mut libvlc_audio_track_t {
         transmute(self._union0)
     }
-    pub unsafe fn video(&mut self) -> *mut libvlc_audio_track_t {
+    pub unsafe fn video(&mut self) -> *mut libvlc_video_track_t {
         transmute(self._union0)
     }
     pub unsafe fn subtitle(&mut self) -> *mut libvlc_subtitle_track_t {
