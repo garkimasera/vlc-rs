@@ -7,6 +7,7 @@ use ::Instance;
 use ::Media;
 use ::EventManager;
 use ::libc::{c_void, c_uint};
+use ::enums::{State, Position};
 use std::mem::transmute;
 
 /// A LibVLC media player plays one media (usually in a custom drawable).
@@ -148,6 +149,167 @@ impl MediaPlayer {
     pub fn get_hwnd(&self) -> Option<*mut c_void> {
         let hwnd = unsafe{ ffi::libvlc_media_player_get_hwnd(self.ptr) };
         if hwnd.is_null() { None }else{ Some(hwnd) }
+    }
+
+    /// Get the current movie time (in ms).
+    pub fn get_time(&self) -> Option<i64> {
+        unsafe{
+            let t = ffi::libvlc_media_player_get_time(self.ptr);
+            if t == -1 { None }else{ Some(t) }
+        }
+    }
+
+    /// Set the movie time (in ms).
+    /// This has no effect if no media is being played. Not all formats and protocols support this.
+    pub fn set_time(&self, time: i64) {
+        unsafe{ ffi::libvlc_media_player_set_time(self.ptr, time); }
+    }
+
+    /// Get movie position as percentage between 0.0 and 1.0.
+    pub fn get_position(&self) -> Option<f32> {
+        unsafe{
+            let pos = ffi::libvlc_media_player_get_position(self.ptr);
+            if pos == -1f32 { None }else{ Some(pos) }
+        }
+    }
+
+    /// Set movie position as percentage between 0.0 and 1.0.
+    /// This has no effect if playback is not enabled. This might not work depending on the underlying input format and protocol.
+    pub fn set_position(&self, pos: f32) {
+        unsafe{ ffi::libvlc_media_player_set_position(self.ptr, pos); }
+    }
+
+    /// Set movie chapter (if applicable).
+    pub fn set_chapter(&self, chapter: i32) {
+        unsafe{ ffi::libvlc_media_player_set_chapter(self.ptr, chapter); }
+    }
+
+    /// Get movie chapter.
+    pub fn get_chapter(&self) -> Option<i32> {
+        unsafe{
+            let c = ffi::libvlc_media_player_get_chapter(self.ptr);
+            if c == -1 { None }else{ Some(c) }
+        }
+    }
+
+    /// Get movie chapter count.
+    pub fn chapter_count(&self) -> Option<i32> {
+        unsafe{
+            let c = ffi::libvlc_media_player_get_chapter_count(self.ptr);
+            if c == -1 { None }else{ Some(c) }
+        }
+    }
+
+    /// Is the player able to play.
+    pub fn will_play(&self) -> bool {
+        unsafe{
+            let b = ffi::libvlc_media_player_will_play(self.ptr);
+            if b == 0 { false }else{ true }
+        }
+    }
+
+    /// Get title chapter count.
+    pub fn chapter_count_for_title(&self, title: i32) -> Option<i32> {
+        unsafe{
+            let c = ffi::libvlc_media_player_get_chapter_count_for_title(self.ptr, title);
+            if c == -1 { None }else{ Some(c) }
+        }
+    }
+
+    /// Set movie title.
+    pub fn set_title(&self, title: i32) {
+        unsafe{ ffi::libvlc_media_player_set_title(self.ptr, title); }
+    }
+
+    /// Get movie title.
+    pub fn get_title(&self) -> Option<i32> {
+        unsafe{
+            let t = ffi::libvlc_media_player_get_title(self.ptr);
+            if t == -1 { None }else{ Some(t) }
+        }
+    }
+
+    /// Get movie title count.
+    pub fn title_count(&self) -> Option<i32> {
+        unsafe{
+            let t = ffi::libvlc_media_player_get_title_count(self.ptr);
+            if t == -1 { Some(t) } else { None }
+        }
+    }
+
+    /// Set previous chapter (if applicable)
+    pub fn previous_chapter(&self) {
+        unsafe{ ffi::libvlc_media_player_previous_chapter(self.ptr); }
+    }
+
+    /// Set next chapter (if applicable)
+    pub fn next_chapter(&self) {
+        unsafe{ ffi::libvlc_media_player_next_chapter(self.ptr); }
+    }
+
+    /// Get the requested movie play rate.
+    pub fn get_rate(&self) -> f32 {
+        unsafe{ ffi::libvlc_media_player_get_rate(self.ptr) }
+    }
+
+    /// Set movie play rate.
+    pub fn set_rate(&self, rate: f32) -> Result<(),()> {
+        unsafe{
+            if ffi::libvlc_media_player_set_rate(self.ptr, rate) == -1 {
+                Err(())
+            }else{
+                Ok(())
+            }
+        }
+    }
+
+    /// Get current movie state.
+    pub fn state(&self) -> State {
+        unsafe{ ffi::libvlc_media_player_get_state(self.ptr) }
+    }
+
+    /// How many video outputs does this media player have?
+    pub fn has_vout(&self) -> u32 {
+        unsafe{ ffi::libvlc_media_player_has_vout(self.ptr) }
+    }
+
+    /// Is this media player seekable?
+    pub fn is_seekable(&self) -> bool {
+        unsafe{
+            let b = ffi::libvlc_media_player_is_seekable(self.ptr);
+            if b == 0 { false }else{ true }
+        }
+    }
+
+    /// Can this media player be paused?
+    pub fn can_pause(&self) -> bool {
+        unsafe{
+            let b = ffi::libvlc_media_player_can_pause(self.ptr);
+            if b == 0 { false }else{ true }
+        }
+    }
+
+    /// Check if the current program is scrambled.
+    pub fn program_scrambled(&self) -> bool {
+        unsafe{
+            let b = ffi::libvlc_media_player_program_scrambled(self.ptr);
+            if b == 0 { false }else{ true }
+        }
+    }
+
+    /// Display the next frame (if supported)
+    pub fn next_frame(&self) {
+        unsafe{ ffi::libvlc_media_player_next_frame(self.ptr); }
+    }
+
+    /// Navigate through DVD Menu.
+    pub fn navigate(&self, navigate: u32) {
+        unsafe{ ffi::libvlc_media_player_navigate(self.ptr, navigate); }
+    }
+
+    /// Set if, and how, the video title will be shown when media is played.
+    pub fn set_video_title_display(&self, position: Position, timeout: u32) {
+        unsafe{ ffi::libvlc_media_player_set_video_title_display(self.ptr, position, timeout); }
     }
 }
 

@@ -304,20 +304,7 @@ pub enum libvlc_navigate_mode_t {
     libvlc_navigate_right,
 }
 
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub enum libvlc_position_t {
-    libvlc_position_disable = -1,
-    libvlc_position_center,
-    libvlc_position_left,
-    libvlc_position_right,
-    libvlc_position_top,
-    libvlc_position_top_left,
-    libvlc_position_top_right,
-    libvlc_position_bottom,
-    libvlc_position_bottom_left,
-    libvlc_position_bottom_right,
-}
+pub use Position as libvlc_position_t;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -442,7 +429,10 @@ extern "C" {
     pub fn libvlc_media_player_set_chapter(p_mi: *mut libvlc_media_player_t, i_chapter: c_int);
     pub fn libvlc_media_player_get_chapter(p_mi: *mut libvlc_media_player_t) -> c_int;
     pub fn libvlc_media_player_get_chapter_count(p_mi: *mut libvlc_media_player_t) -> c_int;
+    pub fn libvlc_media_player_will_play(p_mi: *mut libvlc_media_player_t) -> c_int;
     pub fn libvlc_media_player_set_title(p_mi: *mut libvlc_media_player_t, i_title: c_int);
+    pub fn libvlc_media_player_get_chapter_count_for_title(
+        p_mi: *mut libvlc_media_player_t, i_title: c_int) -> c_int;
     pub fn libvlc_media_player_get_title(p_mi: *mut libvlc_media_player_t) -> c_int;
     pub fn libvlc_media_player_get_title_count(p_mi: *mut libvlc_media_player_t) -> c_int;
     pub fn libvlc_media_player_previous_chapter(p_mi: *mut libvlc_media_player_t);

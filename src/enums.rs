@@ -61,6 +61,21 @@ pub enum TrackType {
     Text    = 2
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Position {
+    Disable = -1,
+    Center,
+    Left,
+    Right,
+    Top,
+    TopLeft,
+    TopRight,
+    Bottom,
+    BottomLeft,
+    BottomRight,
+}
+
 // #[repr(C)]
 // #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 // pub enum ParseFlag {
