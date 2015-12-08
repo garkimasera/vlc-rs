@@ -305,6 +305,7 @@ pub enum libvlc_navigate_mode_t {
 }
 
 pub use Position as libvlc_position_t;
+pub use VideoAdjustOption as libvlc_video_adjust_option;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -317,17 +318,6 @@ pub enum libvlc_video_logo_option_t {
     libvlc_logo_repeat,
     libvlc_logo_opacity,
     libvlc_logo_position
-}
-
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub enum libvlc_video_adjust_option_t {
-    libvlc_adjust_Enable = 0,
-    libvlc_adjust_Contrast,
-    libvlc_adjust_Brightness,
-    libvlc_adjust_Hue,
-    libvlc_adjust_Saturation,
-    libvlc_adjust_Gamma
 }
 
 #[repr(C)]

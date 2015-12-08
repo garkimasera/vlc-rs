@@ -76,6 +76,17 @@ pub enum Position {
     BottomRight,
 }
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub enum VideoAdjustOption {
+    Enable = 0,
+    Contrast,
+    Brightness,
+    Hue,
+    Saturation,
+    Gamma
+}
+
 // #[repr(C)]
 // #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 // pub enum ParseFlag {
