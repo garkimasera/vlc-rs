@@ -32,6 +32,8 @@ pub enum libvlc_log_t {}
 pub enum vlc_log_t {}
 
 pub type libvlc_callback_t = unsafe extern "C" fn(*const libvlc_event_t, *mut c_void);
+pub type va_list = *mut c_void;
+pub type libvlc_log_cb = unsafe extern "C" fn(*mut c_void, c_int, *const libvlc_log_t, *const c_char, va_list);
 
 pub use LogLevel as libvlc_log_level;
 
@@ -77,7 +79,7 @@ extern "C" {
         ctx: *const libvlc_log_t, name: *const *const c_char,
         header: *const *const c_char, id: *mut uintptr_t);
     pub fn libvlc_log_unset(_: *mut libvlc_instance_t);
-    // pub fn libvlc_log_set
+    pub fn libvlc_log_set(instance: *mut libvlc_instance_t, cb: libvlc_log_cb, data: *mut c_void);
     pub fn libvlc_log_set_file(_: *mut libvlc_instance_t, stream: *mut FILE);
     pub fn libvlc_module_description_list_release(p_list: *mut libvlc_module_description_t);
     pub fn libvlc_audio_filter_list_get(

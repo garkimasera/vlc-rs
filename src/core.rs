@@ -7,7 +7,7 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 use ffi;
 use ::tools::{to_cstr, from_cstr, from_cstr_ref};
-use ::libc::c_void;
+use ::libc::{c_void, c_char, c_int};
 use ::enums::*;
 
 /// Retrieve libvlc version. 
@@ -93,6 +93,15 @@ impl Instance {
             else { Some(ModuleDescriptionList{ptr: p}) }
         }
     }
+
+    /// Set logging callback
+    pub fn set_log<F: Fn(LogLevel, Log, Cow<str>) + Send + 'static>(&self, f: F) {
+        let cb: Box<Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
+        
+        unsafe{
+            ffi::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
+        }
+    }
 }
 
 impl Drop for Instance {
@@ -101,6 +110,21 @@ impl Drop for Instance {
             ffi::libvlc_release(self.ptr);
         }
     }
+}
+
+extern "C" {
+    fn vsnprintf(s: *mut c_char, n: usize, fmt: *const c_char, arg: ffi::va_list);
+}
+const BUF_SIZE: usize = 1024; // Write log message to the buffer by vsnprintf.
+unsafe extern "C" fn logging_cb(
+    data: *mut c_void, level: c_int, ctx: *const ffi::libvlc_log_t, fmt: *const c_char, args: ffi::va_list) {
+
+    let f: &Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static> = ::std::mem::transmute(data);
+    let mut buf: [c_char; BUF_SIZE] = [0; BUF_SIZE];
+
+    vsnprintf(buf.as_mut_ptr(), BUF_SIZE, fmt, args);
+
+    f(::std::mem::transmute(level), Log{ptr: ctx}, from_cstr_ref(buf.as_ptr()).unwrap());
 }
 
 /// List of module description.
@@ -462,5 +486,9 @@ fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
 
 pub struct VLCObject {
     _ptr: *mut c_void,
+}
+
+pub struct Log {
+    pub ptr: *const ffi::libvlc_log_t
 }
 
