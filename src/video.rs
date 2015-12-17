@@ -5,6 +5,8 @@
 use ffi;
 use ::MediaPlayer;
 use ::enums::VideoAdjustOption;
+use ::tools::{to_cstr, from_cstr};
+use ::libc::c_void;
 
 pub trait MediaPlayerVideoEx {
     fn toggle_fullscreen(&self);
@@ -18,6 +20,8 @@ pub trait MediaPlayerVideoEx {
     fn get_cursor(&self, num: u32) -> Option<(i32, i32)>;
     fn get_scale(&self) -> f32;
     fn set_scale(&self, factor: f32);
+    fn get_aspect_ratio(&self) -> Option<String>;
+    fn set_aspect_ratio(&self, aspect: Option<&str>);
     fn get_adjust_int(&self, option: VideoAdjustOption) -> i32;
     fn set_adjust_int(&self, option: VideoAdjustOption, value: i32);
     fn get_adjust_float(&self, option: VideoAdjustOption) -> f32;
@@ -70,6 +74,23 @@ impl MediaPlayerVideoEx for MediaPlayer {
     }
     fn set_video_track(&self, track: i32) {
         unsafe{ ffi::libvlc_video_set_track(self.ptr, track); }
+    }
+    fn get_aspect_ratio(&self) -> Option<String> {
+        unsafe{
+            let p = ffi::libvlc_video_get_aspect_ratio(self.ptr);
+            let s = from_cstr(p);
+            if !p.is_null() { ffi::libvlc_free(p as *mut c_void); }
+            s
+        }
+    }
+    fn set_aspect_ratio(&self, aspect: Option<&str>) {
+        unsafe{
+            if let Some(a) = aspect {
+                ffi::libvlc_video_set_aspect_ratio(self.ptr, to_cstr(a).as_ptr());
+            }else{
+                ffi::libvlc_video_set_aspect_ratio(self.ptr, ::std::ptr::null());
+            }
+        }
     }
     fn get_adjust_int(&self, option: VideoAdjustOption) -> i32 {
         unsafe{ ffi::libvlc_video_get_adjust_int(self.ptr, option as u32) }
