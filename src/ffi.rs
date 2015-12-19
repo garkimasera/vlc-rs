@@ -256,29 +256,29 @@ pub enum libvlc_equalizer_t {}
 
 #[repr(C)]
 pub struct libvlc_track_description_t {
-    i_id: c_int,
-    psz_name: *mut c_char,
-    p_next: *mut libvlc_track_description_t,
+    pub i_id: c_int,
+    pub psz_name: *mut c_char,
+    pub p_next: *mut libvlc_track_description_t,
 }
 
 #[repr(C)]
 pub struct libvlc_audio_output_t {
-    psz_name: *mut c_char,
-    psz_description: *mut c_char,
-    p_next: *mut libvlc_audio_output_t,
+    pub psz_name: *mut c_char,
+    pub psz_description: *mut c_char,
+    pub p_next: *mut libvlc_audio_output_t,
 }
 
 #[repr(C)]
 pub struct libvlc_audio_output_device_t {
-    p_next: *mut libvlc_audio_output_device_t,
-    psz_device: *mut c_char,
-    psz_description: *mut c_char,
+    pub p_next: *mut libvlc_audio_output_device_t,
+    pub psz_device: *mut c_char,
+    pub psz_description: *mut c_char,
 }
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct libvlc_rectangle_t {
-    top: c_int, left: c_int, bottom: c_int, right: c_int,
+    pub top: c_int, pub left: c_int, pub bottom: c_int, pub right: c_int,
 }
 
 #[repr(C)]
