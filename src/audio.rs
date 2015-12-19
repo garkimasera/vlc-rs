@@ -4,12 +4,15 @@
 
 use ffi;
 use ::MediaPlayer;
+use ::TrackDescription;
+use ::tools::from_cstr;
 
 pub trait MediaPlayerAudioEx {
     fn get_mute(&self) -> Option<bool>;
     fn set_mute(&self, bool);
     fn get_volume(&self) -> i32;
     fn set_volume(&self, volume: i32) -> Result<(), ()>;
+    fn get_audio_track_description(&self) -> Option<Vec<TrackDescription>>;
 }
 
 impl MediaPlayerAudioEx for MediaPlayer {
@@ -37,4 +40,20 @@ impl MediaPlayerAudioEx for MediaPlayer {
             if ffi::libvlc_audio_set_volume(self.ptr, volume) == 0 { Ok(()) }else{ Err(()) }
         }
     }
+    fn get_audio_track_description(&self) -> Option<Vec<TrackDescription>> {
+        unsafe{
+            let p0 = ffi::libvlc_audio_get_track_description(self.ptr);
+            if p0.is_null() { return None; }
+            let mut td = Vec::new();
+            let mut p = p0;
+
+            while !(*p).p_next.is_null() {
+                td.push(TrackDescription{ id: (*p).i_id, name: from_cstr((*p).psz_name) });
+                p = (*p).p_next;
+            }
+            ffi::libvlc_track_description_list_release(p0);
+            Some(td)
+        }
+    }
+
 }

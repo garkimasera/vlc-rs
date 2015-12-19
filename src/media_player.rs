@@ -355,3 +355,9 @@ unsafe extern "C" fn audio_cb_drain(data: *mut c_void) {
     (data.drain.as_ref().unwrap())();
 }
 
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct TrackDescription {
+    pub id: i32,
+    pub name: Option<String>,
+}
+
