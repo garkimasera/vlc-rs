@@ -13,7 +13,7 @@ git = "https://github.com/Orenantedose/vlc-rs.git"
 ```
 
 ## Example
-Play for 10 seconds from an media file.
+Play for 10 seconds from a media file.
 ```Rust
 extern crate vlc;
 use vlc::{Instance, Media, MediaPlayer};
@@ -32,7 +32,7 @@ fn main() {
     mdp.play().unwrap();
 
     // Wait for 10 seconds
-    thread::sleep_ms(10000);
+    thread::sleep(::std::time::Duration::from_secs(10));
 }
 ```
 
