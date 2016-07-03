@@ -9,7 +9,7 @@ Please add the following dependencies to your Cargo.toml.
 
 ```Toml
 [dependencies.vlc-rs]
-git = "https://github.com/nikeah/vlc-rs.git"
+git = "https://github.com/garkimasera/vlc-rs.git"
 ```
 
 ## Example
