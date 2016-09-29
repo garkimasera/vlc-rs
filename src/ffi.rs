@@ -4,6 +4,9 @@
 
 #![allow(non_camel_case_types, non_upper_case_globals)]
 
+#[link(name = "vlc")]
+extern "C" {}
+
 use libc::{c_void, c_int, c_uint, c_char, c_float, uintptr_t, FILE};
 use std::mem::transmute;
 
@@ -47,7 +50,6 @@ pub struct libvlc_module_description_t
     pub p_next: *mut libvlc_module_description_t,
 }
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_errmsg() -> *const c_char;
     pub fn libvlc_clearerr();
@@ -208,7 +210,6 @@ impl libvlc_media_track_t {
     }
 }
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_media_new_location(p_instance: *mut libvlc_instance_t, psz_mrl: *const c_char)
                                      -> *mut libvlc_media_t;
@@ -364,7 +365,6 @@ pub type libvlc_audio_setup_cb = Option<unsafe extern "C" fn(
     *mut *mut c_void, *mut c_char, *mut c_uint, *mut c_uint)>;
 pub type libvlc_audio_cleanup_cb = Option<unsafe extern "C" fn(*mut c_void)>;
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_media_player_new(p_libvlc_instance: *mut libvlc_instance_t)
                                    -> *mut libvlc_media_player_t;
@@ -701,7 +701,6 @@ pub mod libvlc_event_t_union {
 
 pub enum libvlc_media_list_t {}
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_media_list_new(p_instance: *mut libvlc_instance_t) -> *mut libvlc_media_list_t;
     pub fn libvlc_media_list_release(p_ml: *mut libvlc_media_list_t);
@@ -729,7 +728,6 @@ extern "C" {
 
 pub enum libvlc_media_library_t {}
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_media_library_new(p_instance: *mut libvlc_instance_t) -> *mut libvlc_media_library_t;
     pub fn libvlc_media_library_release(p_mlib: *mut libvlc_media_library_t);
@@ -743,7 +741,6 @@ extern "C" {
 
 pub enum libvlc_media_discoverer_t {}
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_media_discoverer_new_from_name(
         p_inst: *mut libvlc_instance_t, psz_name: *const c_char) -> *mut libvlc_media_discoverer_t;
@@ -759,7 +756,6 @@ extern "C" {
 
 // From libvlc_vlm.h
 
-#[link(name = "vlc")]
 extern "C" {
     pub fn libvlc_vlm_release(p_instance: *mut libvlc_instance_t);
     pub fn libvlc_vlm_add_broadcast(
