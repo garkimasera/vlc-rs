@@ -2,7 +2,8 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use std::ffi::{CString, CStr};
+use std::ffi::{CString, CStr, NulError};
+use std::path::Path;
 use std::borrow::Cow;
 use libc::c_char;
 
@@ -32,4 +33,11 @@ pub unsafe fn from_cstr_ref<'a>(p: *const c_char) -> Option<Cow<'a, str>> {
 
         Some(cstr.to_string_lossy())
     }
+}
+
+// Create CString from &Path
+pub fn path_to_cstr(path: &Path) -> Result<CString, NulError> {
+    let path = try!(CString::new(path.to_string_lossy().into_owned()));
+    
+    Ok(path)
 }

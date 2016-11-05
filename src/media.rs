@@ -5,7 +5,8 @@
 use ffi;
 use ::{Instance, EventManager};
 use ::enums::{State, Meta, TrackType};
-use ::tools::{to_cstr, from_cstr};
+use ::tools::{to_cstr, from_cstr, path_to_cstr};
+use std::path::Path;
 
 pub struct Media {
     pub ptr: *mut ffi::libvlc_media_t,
@@ -27,8 +28,11 @@ impl Media {
     }
 
     /// Create a media for a certain file path. 
-    pub fn new_path(instance: &Instance, path: &str) -> Option<Media> {
-        let cstr = to_cstr(path);
+    pub fn new_path<T: AsRef<Path>>(instance: &Instance, path: T) -> Option<Media> {
+        let cstr = match path_to_cstr(path.as_ref()) {
+            Ok(s) => s,
+            Err(_) => { return None; },
+        };
         
         unsafe{
             let p = ffi::libvlc_media_new_path(instance.ptr, cstr.as_ptr());
