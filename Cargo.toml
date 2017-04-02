@@ -3,9 +3,15 @@ name = "vlc-rs"
 version = "0.1.0"
 authors = ["T. Okubo <t.okubo.rx78+github@gmail.com>"]
 
+description = "Rust bindings for libVLC media framework."
+keywords = ["libVLC", "bindings"]
+repository = "https://github.com/garkimasera/vlc-rs"
+license = "MIT"
+readme = "README.md"
+
 [lib]
 name = "vlc"
 crate-type = ["rlib"]
 
 [dependencies]
-libc = "*"
+libc = "0.2"
