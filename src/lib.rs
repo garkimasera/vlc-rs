@@ -4,7 +4,7 @@
 
 extern crate libc;
 
-pub mod ffi;
+pub mod sys;
 
 mod tools;
 mod core;

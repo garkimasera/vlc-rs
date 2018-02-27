@@ -2,14 +2,14 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use ffi;
+use sys;
 use ::{Instance, EventManager};
 use ::enums::{State, Meta, TrackType};
 use ::tools::{to_cstr, from_cstr, path_to_cstr};
 use std::path::Path;
 
 pub struct Media {
-    pub ptr: *mut ffi::libvlc_media_t,
+    pub ptr: *mut sys::libvlc_media_t,
 }
 
 impl Media {
@@ -18,7 +18,7 @@ impl Media {
         let cstr = to_cstr(mrl);
         
         unsafe{
-            let p = ffi::libvlc_media_new_location(instance.ptr, cstr.as_ptr());
+            let p = sys::libvlc_media_new_location(instance.ptr, cstr.as_ptr());
             if p.is_null() {
                 return None;
             }
@@ -35,7 +35,7 @@ impl Media {
         };
         
         unsafe{
-            let p = ffi::libvlc_media_new_path(instance.ptr, cstr.as_ptr());
+            let p = sys::libvlc_media_new_path(instance.ptr, cstr.as_ptr());
             if p.is_null() {
                 return None;
             }
@@ -46,7 +46,7 @@ impl Media {
     
     pub fn new_fd(instance: &Instance, fd: i32) -> Option<Media> {
         unsafe{
-            let p = ffi::libvlc_media_new_fd(instance.ptr, fd);
+            let p = sys::libvlc_media_new_fd(instance.ptr, fd);
             if p.is_null() {
                 return None;
             }
@@ -57,16 +57,16 @@ impl Media {
 
     pub fn mrl(&self) -> Option<String> {
         unsafe{
-            let p_str = ffi::libvlc_media_get_mrl(self.ptr);
+            let p_str = sys::libvlc_media_get_mrl(self.ptr);
             let s = from_cstr(p_str);
-            ffi::libvlc_free(p_str as *mut ::libc::c_void);
+            sys::libvlc_free(p_str as *mut ::libc::c_void);
             s
         }
     }
 
     pub fn event_manager<'a>(&'a self) -> EventManager<'a> {
         unsafe{
-            let p = ffi::libvlc_media_event_manager(self.ptr);
+            let p = sys::libvlc_media_event_manager(self.ptr);
             assert!(!p.is_null());
             EventManager{ptr: p, _phantomdata: ::std::marker::PhantomData}
         }
@@ -76,9 +76,9 @@ impl Media {
     /// If the media has not yet been parsed this will return None.
     pub fn get_meta(&self, meta: Meta) -> Option<String> {
         unsafe{
-            let p_str = ffi::libvlc_media_get_meta(self.ptr, meta);
+            let p_str = sys::libvlc_media_get_meta(self.ptr, meta);
             let s = from_cstr(p_str);
-            ffi::libvlc_free(p_str as *mut ::libc::c_void);
+            sys::libvlc_free(p_str as *mut ::libc::c_void);
             s
         }
     }
@@ -87,47 +87,47 @@ impl Media {
     /// (This function will not save the meta, call save_meta in order to save the meta) 
     pub fn set_meta(&self, meta: Meta, value: &str) {
         unsafe{
-            ffi::libvlc_media_set_meta(self.ptr, meta, to_cstr(value).as_ptr());
+            sys::libvlc_media_set_meta(self.ptr, meta, to_cstr(value).as_ptr());
         }
     }
 
     /// Save the meta previously set.
     pub fn save_meta(&self) -> bool {
-        if unsafe{ ffi::libvlc_media_save_meta(self.ptr) } == 0 { false }else{ true }
+        if unsafe{ sys::libvlc_media_save_meta(self.ptr) } == 0 { false }else{ true }
     }
 
     /// Get current state of media descriptor object.
     pub fn state(&self) -> State {
-        unsafe{ ffi::libvlc_media_get_state(self.ptr) }
+        unsafe{ sys::libvlc_media_get_state(self.ptr) }
     }
 
     /// Get duration (in ms) of media descriptor object item.
     pub fn duration(&self) -> Option<i64> {
         let time = unsafe{
-            ffi::libvlc_media_get_duration(self.ptr)
+            sys::libvlc_media_get_duration(self.ptr)
         };
         if time != -1 { Some(time) }else{ None }
     }
 
     /// Parse a media. 
     pub fn parse(&self) {
-        unsafe{ ffi::libvlc_media_parse(self.ptr) };
+        unsafe{ sys::libvlc_media_parse(self.ptr) };
     }
 
     /// Parse a media.
     pub fn parse_async(&self) {
-        unsafe{ ffi::libvlc_media_parse_async(self.ptr) };
+        unsafe{ sys::libvlc_media_parse_async(self.ptr) };
     }
 
     /// Get Parsed status for media descriptor object.
     pub fn is_parsed(&self) -> bool {
-        if unsafe{ ffi::libvlc_media_is_parsed(self.ptr) } == 0 { false }else{ true }
+        if unsafe{ sys::libvlc_media_is_parsed(self.ptr) } == 0 { false }else{ true }
     }
 
     pub fn tracks(&self) -> Option<Vec<MediaTrack>> {
         unsafe{
-            let mut p_track: *mut *mut ffi::libvlc_media_track_t = ::std::ptr::null_mut();
-            let n = ffi::libvlc_media_tracks_get(self.ptr, &mut p_track);
+            let mut p_track: *mut *mut sys::libvlc_media_track_t = ::std::ptr::null_mut();
+            let n = sys::libvlc_media_tracks_get(self.ptr, &mut p_track);
             if n == 0 {
                 return None;
             }
@@ -177,7 +177,7 @@ impl Media {
                 });
             }
 
-            ffi::libvlc_media_tracks_release(p_track, n);
+            sys::libvlc_media_tracks_release(p_track, n);
             Some(track)
         }
     }
@@ -185,7 +185,7 @@ impl Media {
 
 impl Drop for Media {
     fn drop(&mut self) {
-        unsafe{ ffi::libvlc_media_release(self.ptr) };
+        unsafe{ sys::libvlc_media_release(self.ptr) };
     }
 }
 

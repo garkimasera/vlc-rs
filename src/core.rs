@@ -5,7 +5,7 @@
 use std::ptr::null;
 use std::borrow::Cow;
 use std::marker::PhantomData;
-use ffi;
+use sys;
 use ::tools::{to_cstr, from_cstr, from_cstr_ref};
 use ::libc::{c_void, c_char, c_int};
 use ::enums::*;
@@ -13,26 +13,26 @@ use ::enums::*;
 /// Retrieve libvlc version. 
 pub fn version() -> Cow<'static, str> {
     unsafe{
-        from_cstr_ref(ffi::libvlc_get_version()).unwrap()
+        from_cstr_ref(sys::libvlc_get_version()).unwrap()
     }
 }
 
 /// Retrieve libvlc compiler version.
 pub fn compiler() -> Cow<'static, str> {
     unsafe{
-        from_cstr_ref(ffi::libvlc_get_compiler()).unwrap()
+        from_cstr_ref(sys::libvlc_get_compiler()).unwrap()
     }
 }
 
 pub struct Instance {
-    pub ptr: *mut ffi::libvlc_instance_t,
+    pub ptr: *mut sys::libvlc_instance_t,
 }
 
 impl Instance {
     /// Create and initialize a libvlc instance. 
     pub fn new() -> Option<Instance> {
         unsafe{
-            let p = ffi::libvlc_new(0, null());
+            let p = sys::libvlc_new(0, null());
             
             if p.is_null() {
                 return None;
@@ -47,7 +47,7 @@ impl Instance {
         let cstr = to_cstr(name);
 
         let result = unsafe{
-            ffi::libvlc_add_intf(self.ptr, cstr.as_ptr())
+            sys::libvlc_add_intf(self.ptr, cstr.as_ptr())
         };
 
         if result == 0 { Ok(()) }
@@ -58,20 +58,20 @@ impl Instance {
     /// LibVLC passes this as the user agent string when a protocol requires it.
     pub fn set_user_agent(&self, name: &str, http: &str) {
         unsafe{
-            ffi::libvlc_set_user_agent(
+            sys::libvlc_set_user_agent(
                 self.ptr, to_cstr(name).as_ptr(), to_cstr(http).as_ptr());
         }
     }
 
     /// Waits until an interface causes the instance to exit.
     pub fn wait(&self) {
-        unsafe{ ffi::libvlc_wait(self.ptr) };
+        unsafe{ sys::libvlc_wait(self.ptr) };
     }
 
     /// Sets some meta-information about the application.
     pub fn set_app_id(&self, id: &str, version: &str, icon: &str) {
         unsafe{
-            ffi::libvlc_set_app_id(
+            sys::libvlc_set_app_id(
                 self.ptr, to_cstr(id).as_ptr(), to_cstr(version).as_ptr(), to_cstr(icon).as_ptr());
         }
     }
@@ -79,7 +79,7 @@ impl Instance {
     /// Returns a list of audio filters that are available.
     pub fn audio_filter_list_get(&self) -> Option<ModuleDescriptionList> {
         unsafe{
-            let p = ffi::libvlc_audio_filter_list_get(self.ptr);
+            let p = sys::libvlc_audio_filter_list_get(self.ptr);
             if p.is_null() { None }
             else { Some(ModuleDescriptionList{ptr: p}) }
         }
@@ -88,7 +88,7 @@ impl Instance {
     /// Returns a list of video filters that are available.
     pub fn video_filter_list_get(&self) -> Option<ModuleDescriptionList> {
         unsafe{
-            let p = ffi::libvlc_video_filter_list_get(self.ptr);
+            let p = sys::libvlc_video_filter_list_get(self.ptr);
             if p.is_null() { None }
             else { Some(ModuleDescriptionList{ptr: p}) }
         }
@@ -99,7 +99,7 @@ impl Instance {
         let cb: Box<Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
         
         unsafe{
-            ffi::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
+            sys::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
         }
     }
 }
@@ -107,17 +107,17 @@ impl Instance {
 impl Drop for Instance {
     fn drop(&mut self) {
         unsafe{
-            ffi::libvlc_release(self.ptr);
+            sys::libvlc_release(self.ptr);
         }
     }
 }
 
 extern "C" {
-    fn vsnprintf(s: *mut c_char, n: usize, fmt: *const c_char, arg: ffi::va_list);
+    fn vsnprintf(s: *mut c_char, n: usize, fmt: *const c_char, arg: sys::va_list);
 }
 const BUF_SIZE: usize = 1024; // Write log message to the buffer by vsnprintf.
 unsafe extern "C" fn logging_cb(
-    data: *mut c_void, level: c_int, ctx: *const ffi::libvlc_log_t, fmt: *const c_char, args: ffi::va_list) {
+    data: *mut c_void, level: c_int, ctx: *const sys::libvlc_log_t, fmt: *const c_char, args: sys::va_list) {
 
     let f: &Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static> = ::std::mem::transmute(data);
     let mut buf: [c_char; BUF_SIZE] = [0; BUF_SIZE];
@@ -129,12 +129,12 @@ unsafe extern "C" fn logging_cb(
 
 /// List of module description.
 pub struct ModuleDescriptionList {
-    ptr: *mut ffi::libvlc_module_description_t,
+    ptr: *mut sys::libvlc_module_description_t,
 }
 
 impl Drop for ModuleDescriptionList {
     fn drop(&mut self) {
-        unsafe{ ffi::libvlc_module_description_list_release(self.ptr) };
+        unsafe{ sys::libvlc_module_description_list_release(self.ptr) };
     }
 }
 
@@ -148,8 +148,8 @@ impl<'a> IntoIterator for &'a ModuleDescriptionList {
 }
 
 pub struct ModuleDescriptionListIter<'a> {
-    ptr: *mut ffi::libvlc_module_description_t,
-    _phantomdata: PhantomData<&'a ffi::libvlc_module_description_t>,
+    ptr: *mut sys::libvlc_module_description_t,
+    _phantomdata: PhantomData<&'a sys::libvlc_module_description_t>,
 }
 
 /// Description of a module.
@@ -204,11 +204,11 @@ impl<'a> ModuleDescriptionRef<'a> {
 }
 
 pub fn errmsg() -> Option<String> {
-    unsafe{ from_cstr(ffi::libvlc_errmsg()) }
+    unsafe{ from_cstr(sys::libvlc_errmsg()) }
 }
 
 pub fn clearerr() {
-    unsafe{ ffi::libvlc_clearerr() };
+    unsafe{ sys::libvlc_clearerr() };
 }
 
 #[derive(Clone, Debug)]
@@ -273,8 +273,8 @@ pub enum Event {
 }
 
 pub struct EventManager<'a> {
-    pub ptr: *mut ffi::libvlc_event_manager_t,
-    pub _phantomdata: ::std::marker::PhantomData<&'a ffi::libvlc_event_manager_t>,
+    pub ptr: *mut sys::libvlc_event_manager_t,
+    pub _phantomdata: ::std::marker::PhantomData<&'a sys::libvlc_event_manager_t>,
 }
 
 impl<'a> EventManager<'a> {
@@ -286,7 +286,7 @@ impl<'a> EventManager<'a> {
             Box::new(Box::new(callback));
         
         let result = unsafe{
-            ffi::libvlc_event_attach(
+            sys::libvlc_event_attach(
                 self.ptr, event_type as i32, event_manager_callback,
                 Box::into_raw(callback) as *mut c_void)
         };
@@ -299,20 +299,20 @@ impl<'a> EventManager<'a> {
     }
 }
 
-unsafe extern "C" fn event_manager_callback(pe: *const ffi::libvlc_event_t, data: *mut c_void) {
+unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data: *mut c_void) {
     let f: &Box<Fn(Event, VLCObject) + Send + 'static> = ::std::mem::transmute(data);
 
     f(conv_event(pe), VLCObject{_ptr: (*pe).p_obj});
 }
 
 // Convert c-style libvlc_event_t to Event
-fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
+fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
     let event_type: EventType = unsafe{ ::std::mem::transmute((*pe)._type) };
     
     match event_type {
         EventType::MediaMetaChanged => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_meta_changed(pe);
+                let p = sys::libvlc_event_t_union::get_media_meta_changed(pe);
                 Event::MediaMetaChanged((*p).meta_type)
             }
         },
@@ -321,13 +321,13 @@ fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
         },
         EventType::MediaDurationChanged => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_duration_changed(pe);
+                let p = sys::libvlc_event_t_union::get_media_duration_changed(pe);
                 Event::MediaDurationChanged((*p).new_duration)
             }
         },
         EventType::MediaParsedChanged => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_parsed_changed(pe);
+                let p = sys::libvlc_event_t_union::get_media_parsed_changed(pe);
                 Event::MediaParsedChanged((*p).new_status)
             }
         },
@@ -336,7 +336,7 @@ fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
         },
         EventType::MediaStateChanged => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_state_changed(pe);
+                let p = sys::libvlc_event_t_union::get_media_state_changed(pe);
                 Event::MediaStateChanged((*p).new_state)
             }
         },
@@ -354,7 +354,7 @@ fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
         },
         EventType::MediaPlayerBuffering => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_player_buffering(pe);
+                let p = sys::libvlc_event_t_union::get_media_player_buffering(pe);
                 Event::MediaPlayerBuffering((*p).new_cache)
             }
         },
@@ -384,7 +384,7 @@ fn conv_event(pe: *const ffi::libvlc_event_t) -> Event {
         },
         EventType::MediaPlayerPositionChanged => {
             unsafe{
-                let p = ffi::libvlc_event_t_union::get_media_player_position_changed(pe);
+                let p = sys::libvlc_event_t_union::get_media_player_position_changed(pe);
                 Event::MediaPlayerPositionChanged((*p).new_position)
             }
         },
@@ -489,6 +489,6 @@ pub struct VLCObject {
 }
 
 pub struct Log {
-    pub ptr: *const ffi::libvlc_log_t
+    pub ptr: *const sys::libvlc_log_t
 }
 
