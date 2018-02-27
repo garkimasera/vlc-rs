@@ -8,7 +8,6 @@
 extern "C" {}
 
 use libc::{c_void, c_int, c_uint, c_char, c_float, uintptr_t, FILE};
-use std::mem::transmute;
 
 pub type c_bool = u8;
 
@@ -142,22 +141,31 @@ pub struct libvlc_media_track_info_t {
     /* Codec specific */
     pub i_profile: c_int,
     pub i_level: c_int,
-
-    pub _union0: [c_uint; 2]
+    
+    pub u: libvlc_media_track_info_t_types::u,
 }
 
-impl libvlc_media_track_info_t {
-    pub fn audio_i_channnels(&self) -> c_uint {
-        self._union0[0]
+pub mod libvlc_media_track_info_t_types {
+    use libc::c_uint;
+    #[derive(Clone, Copy)]
+    #[repr(C)]
+    pub union u {
+        pub audio: audio,
+        pub video: video,
     }
-    pub fn audio_i_rate(&self) -> c_uint {
-        self._union0[1]
+
+    #[derive(Clone, Copy)]
+    #[repr(C)]
+    pub struct audio {
+        pub i_channels: c_uint,
+        pub i_rate: c_uint,
     }
-    pub fn video_i_height(&self) -> c_uint {
-        self._union0[0]
-    }
-    pub fn video_i_width(&self) -> c_uint {
-        self._union0[1]
+
+    #[derive(Clone, Copy)]
+    #[repr(C)]
+    pub struct video {
+        pub i_height: c_uint,
+        pub i_width: c_uint,
     }
 }
 
@@ -169,6 +177,7 @@ pub struct libvlc_audio_track_t
     pub i_rate: c_uint,
 }
 
+#[repr(C)]
 #[derive(Clone, Copy)]
 pub struct libvlc_video_track_t
 {
@@ -180,6 +189,8 @@ pub struct libvlc_video_track_t
     pub i_frame_rate_den: c_uint,
 }
 
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_subtitle_track_t {
     pub psz_encoding: *const c_char,
 }
@@ -192,21 +203,31 @@ pub struct libvlc_media_track_t {
     pub i_type: libvlc_track_type_t,
     pub i_profile: c_int,
     pub i_level: c_int,
-    pub _union0: *mut c_void,
+    pub u: libvlc_media_track_t_types::u,
     pub i_bitrate: c_uint,
     pub psz_language: *mut c_char,
     pub psz_description: *mut c_char,
 }
 
+pub mod libvlc_media_track_t_types {
+    use super::*;
+    #[repr(C)]
+    pub union u {
+        pub audio: *mut libvlc_audio_track_t,
+        pub video: *mut libvlc_video_track_t,
+        pub subtitle: *mut libvlc_subtitle_track_t,
+    }
+}
+
 impl libvlc_media_track_t {
-    pub unsafe fn audio(&mut self) -> *mut libvlc_audio_track_t {
-        transmute(self._union0)
+    pub unsafe fn audio(&self) -> *mut libvlc_audio_track_t {
+        self.u.audio
     }
-    pub unsafe fn video(&mut self) -> *mut libvlc_video_track_t {
-        transmute(self._union0)
+    pub unsafe fn video(&self) -> *mut libvlc_video_track_t {
+        self.u.video
     }
-    pub unsafe fn subtitle(&mut self) -> *mut libvlc_subtitle_track_t {
-        transmute(self._union0)
+    pub unsafe fn subtitle(&self) -> *mut libvlc_subtitle_track_t {
+        self.u.subtitle
     }
 }
 
@@ -553,148 +574,164 @@ pub use EventType as libvlc_event_e;
 pub struct libvlc_event_t {
     pub _type: c_int,
     pub p_obj: *mut c_void,
-    pub data: [u64; 2],
+    pub u: libvlc_event_t_types::u,
 }
 
-pub mod libvlc_event_t_union {
+pub mod libvlc_event_t_types {
     use super::*;
     use libc::{c_int, c_char, c_float};
+    #[repr(C)]
+    pub union u {
+        pub media_meta_changed: media_meta_changed,
+        pub media_subitem_added: media_subitem_added,
+        pub media_duration_changed: media_duration_changed,
+        pub media_parsed_changed: media_parsed_changed,
+        pub media_freed: media_freed,
+        pub media_state_changed: media_state_changed,
+        pub media_subitemtree_added: media_subitemtree_added,
+        pub media_player_buffering: media_player_buffering,
+        pub media_player_position_changed: media_player_position_changed,
+        pub media_player_time_changed: media_player_time_changed,
+        pub media_player_title_changed: media_player_title_changed,
+        pub media_player_seekable_changed: media_player_seekable_changed,
+        pub media_player_pausable_changed: media_player_pausable_changed,
+        pub media_player_scrambled_changed: media_player_scrambled_changed,
+        pub media_player_vout: media_player_vout,
+        pub media_list_item_added: media_list_item_added,
+        pub media_list_will_add_item: media_list_will_add_item,
+        pub media_list_item_deleted: media_list_item_deleted,
+        pub media_list_will_delete_item: media_list_will_delete_item,
+        pub media_list_player_next_item_set: media_list_player_next_item_set,
+        pub media_player_snapshot_taken: media_player_snapshot_taken,
+        pub media_player_length_changed: media_player_length_changed,
+        pub vlm_media_event: vlm_media_event,
+        pub media_player_media_changed: media_player_media_changed,
+    }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_meta_changed {
         pub meta_type: libvlc_meta_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_subitem_added {
         pub new_child: *mut libvlc_media_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_duration_changed {
         pub new_duration: i64,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_parsed_changed {
         pub new_status: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_freed {
         pub md: *mut libvlc_media_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_state_changed {
         pub new_state: libvlc_state_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_subitemtree_added {
         pub item: *mut libvlc_media_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_buffering {
         pub new_cache: c_float,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_position_changed {
         pub new_position: c_float,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_time_changed {
         pub new_time: libvlc_time_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_title_changed {
         pub new_titie: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_seekable_changed {
         pub new_seekable: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_pausable_changed {
         pub new_pausable: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_scrambled_changed {
         pub new_scrambled: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_vout {
         pub new_count: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_list_item_added {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_list_will_add_item {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_list_item_deleted {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_list_will_delete_item {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_list_player_next_item_set {
         pub item: *mut libvlc_media_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_snapshot_taken {
         pub psz_filename: *mut c_char,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_length_changed {
         pub new_length: libvlc_time_t,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct vlm_media_event {
         pub psz_media_name: *mut c_char,
         pub psz_instance_name: *mut c_char,
     }
+    #[derive(Clone, Copy)]
     #[repr(C)]
     pub struct media_player_media_changed {
         pub new_media: *mut libvlc_media_t,
     }
-
-    macro_rules! union_func {
-        ($name:ident, $ty:ty) => {
-            pub unsafe fn $name(p: *const libvlc_event_t) -> *const $ty {
-                let p: *const _ = &((*p).data);
-                p as *const $ty
-            }
-        }
-    }
-    
-    union_func!(get_media_meta_changed, media_meta_changed);
-    union_func!(get_media_subitem_added, media_subitem_added);
-    union_func!(get_media_duration_changed, media_duration_changed);
-    union_func!(get_media_parsed_changed, media_parsed_changed);
-    union_func!(get_media_freed, media_freed);
-    union_func!(get_media_state_changed, media_state_changed);
-    union_func!(get_media_subitemtree_added, media_subitemtree_added);
-    union_func!(get_media_player_buffering, media_player_buffering);
-    union_func!(get_media_player_position_changed, media_player_position_changed);
-    union_func!(get_media_player_time_changed, media_player_time_changed);
-    union_func!(get_media_player_title_changed, media_player_title_changed);
-    union_func!(get_media_player_seekable_changed, media_player_seekable_changed);
-    union_func!(get_media_player_pausable_changed, media_player_pausable_changed);
-    union_func!(get_media_player_scrambled_changed, media_player_scrambled_changed);
-    union_func!(get_media_player_vout, media_player_vout);
-    union_func!(get_media_list_item_added, media_list_item_added);
-    union_func!(get_media_list_will_add_item, media_list_will_add_item);
-    union_func!(get_media_list_item_deleted, media_list_item_deleted);
-    union_func!(get_media_list_will_delete_item, media_list_will_delete_item);
-    union_func!(get_media_list_player_next_item_set, media_list_player_next_item_set);
-    union_func!(get_media_player_snapshot_taken, media_player_snapshot_taken);
-    union_func!(get_media_player_length_changed, media_player_length_changed);
-    union_func!(get_vlm_media_event, vlm_media_event);
-    union_func!(get_media_player_media_changed, media_player_media_changed);
-
 }
 
 // From libvlc_media_list.h

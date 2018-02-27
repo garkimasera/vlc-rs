@@ -312,8 +312,7 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
     match event_type {
         EventType::MediaMetaChanged => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_meta_changed(pe);
-                Event::MediaMetaChanged((*p).meta_type)
+                Event::MediaMetaChanged((*pe).u.media_meta_changed.meta_type)
             }
         },
         EventType::MediaSubItemAdded => {
@@ -321,14 +320,12 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
         },
         EventType::MediaDurationChanged => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_duration_changed(pe);
-                Event::MediaDurationChanged((*p).new_duration)
+                Event::MediaDurationChanged((*pe).u.media_duration_changed.new_duration)
             }
         },
         EventType::MediaParsedChanged => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_parsed_changed(pe);
-                Event::MediaParsedChanged((*p).new_status)
+                Event::MediaParsedChanged((*pe).u.media_parsed_changed.new_status)
             }
         },
         EventType::MediaFreed => {
@@ -336,8 +333,7 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
         },
         EventType::MediaStateChanged => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_state_changed(pe);
-                Event::MediaStateChanged((*p).new_state)
+                Event::MediaStateChanged((*pe).u.media_state_changed.new_state)
             }
         },
         EventType::MediaSubItemTreeAdded => {
@@ -354,8 +350,7 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
         },
         EventType::MediaPlayerBuffering => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_player_buffering(pe);
-                Event::MediaPlayerBuffering((*p).new_cache)
+                Event::MediaPlayerBuffering((*pe).u.media_player_buffering.new_cache)
             }
         },
         EventType::MediaPlayerPlaying => {
@@ -384,8 +379,7 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
         },
         EventType::MediaPlayerPositionChanged => {
             unsafe{
-                let p = sys::libvlc_event_t_union::get_media_player_position_changed(pe);
-                Event::MediaPlayerPositionChanged((*p).new_position)
+                Event::MediaPlayerPositionChanged((*pe).u.media_player_position_changed.new_position)
             }
         },
         EventType::MediaPlayerSeekableChanged => {
