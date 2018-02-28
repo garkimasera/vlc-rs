@@ -20,6 +20,7 @@ pub enum libvlc_log_iterator_t {}
 pub type libvlc_time_t = i64;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_log_message_t {
     pub i_severity: c_int,
     pub psz_type: *const c_char,
@@ -40,6 +41,7 @@ pub type libvlc_log_cb = unsafe extern "C" fn(*mut c_void, c_int, *const libvlc_
 pub use LogLevel as libvlc_log_level;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_module_description_t
 {
     pub psz_name: *const c_char,
@@ -147,22 +149,22 @@ pub struct libvlc_media_track_info_t {
 
 pub mod libvlc_media_track_info_t_types {
     use libc::c_uint;
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub union u {
         pub audio: audio,
         pub video: video,
     }
 
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct audio {
         pub i_channels: c_uint,
         pub i_rate: c_uint,
     }
 
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct video {
         pub i_height: c_uint,
         pub i_width: c_uint,
@@ -177,8 +179,8 @@ pub struct libvlc_audio_track_t
     pub i_rate: c_uint,
 }
 
-#[repr(C)]
 #[derive(Clone, Copy)]
+#[repr(C)]
 pub struct libvlc_video_track_t
 {
     pub i_height: c_uint,
@@ -196,6 +198,7 @@ pub struct libvlc_subtitle_track_t {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_media_track_t {
     pub i_codec: u32,
     pub i_original_fourcc: u32,
@@ -212,6 +215,7 @@ pub struct libvlc_media_track_t {
 pub mod libvlc_media_track_t_types {
     use super::*;
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub union u {
         pub audio: *mut libvlc_audio_track_t,
         pub video: *mut libvlc_video_track_t,
@@ -277,6 +281,7 @@ pub enum libvlc_media_player_t {}
 pub enum libvlc_equalizer_t {}
 
 #[repr(C)]
+#[derive(Clone, Copy, Debug)]
 pub struct libvlc_track_description_t {
     pub i_id: c_int,
     pub psz_name: *mut c_char,
@@ -284,6 +289,7 @@ pub struct libvlc_track_description_t {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_audio_output_t {
     pub psz_name: *mut c_char,
     pub psz_description: *mut c_char,
@@ -291,6 +297,7 @@ pub struct libvlc_audio_output_t {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_audio_output_device_t {
     pub p_next: *mut libvlc_audio_output_device_t,
     pub psz_device: *mut c_char,
@@ -571,6 +578,7 @@ extern "C" {
 pub use EventType as libvlc_event_e;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 pub struct libvlc_event_t {
     pub _type: c_int,
     pub p_obj: *mut c_void,
@@ -581,6 +589,7 @@ pub mod libvlc_event_t_types {
     use super::*;
     use libc::{c_int, c_char, c_float};
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub union u {
         pub media_meta_changed: media_meta_changed,
         pub media_subitem_added: media_subitem_added,
@@ -607,128 +616,128 @@ pub mod libvlc_event_t_types {
         pub vlm_media_event: vlm_media_event,
         pub media_player_media_changed: media_player_media_changed,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_meta_changed {
         pub meta_type: libvlc_meta_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_subitem_added {
         pub new_child: *mut libvlc_media_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_duration_changed {
         pub new_duration: i64,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_parsed_changed {
         pub new_status: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_freed {
         pub md: *mut libvlc_media_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_state_changed {
         pub new_state: libvlc_state_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_subitemtree_added {
         pub item: *mut libvlc_media_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_buffering {
         pub new_cache: c_float,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_position_changed {
         pub new_position: c_float,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_time_changed {
         pub new_time: libvlc_time_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_title_changed {
         pub new_titie: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_seekable_changed {
         pub new_seekable: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_pausable_changed {
         pub new_pausable: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_scrambled_changed {
         pub new_scrambled: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_vout {
         pub new_count: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_list_item_added {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_list_will_add_item {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_list_item_deleted {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_list_will_delete_item {
         pub item: *mut libvlc_media_t,
         pub index: c_int,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_list_player_next_item_set {
         pub item: *mut libvlc_media_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_snapshot_taken {
         pub psz_filename: *mut c_char,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_length_changed {
         pub new_length: libvlc_time_t,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct vlm_media_event {
         pub psz_media_name: *mut c_char,
         pub psz_instance_name: *mut c_char,
     }
-    #[derive(Clone, Copy)]
     #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct media_player_media_changed {
         pub new_media: *mut libvlc_media_t,
     }
