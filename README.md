@@ -8,6 +8,13 @@ Many missing functions and wrappers.
 Please add the following dependencies to your Cargo.toml.
 
 ```Toml
+[dependencies]
+vlc-rs = "0.2"
+```
+
+Or:
+
+```Toml
 [dependencies.vlc-rs]
 git = "https://github.com/garkimasera/vlc-rs.git"
 ```
