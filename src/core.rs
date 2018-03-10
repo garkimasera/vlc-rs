@@ -11,16 +11,16 @@ use ::libc::{c_void, c_char, c_int};
 use ::enums::*;
 
 /// Retrieve libvlc version. 
-pub fn version() -> Cow<'static, str> {
+pub fn version() -> String {
     unsafe{
-        from_cstr_ref(sys::libvlc_get_version()).unwrap()
+        from_cstr_ref(sys::libvlc_get_version()).unwrap().into_owned()
     }
 }
 
 /// Retrieve libvlc compiler version.
-pub fn compiler() -> Cow<'static, str> {
+pub fn compiler() -> String {
     unsafe{
-        from_cstr_ref(sys::libvlc_get_compiler()).unwrap()
+        from_cstr_ref(sys::libvlc_get_compiler()).unwrap().into_owned()
     }
 }
 
