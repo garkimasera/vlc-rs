@@ -9,7 +9,7 @@ use ::tools::{to_cstr, from_cstr, path_to_cstr};
 use std::path::Path;
 
 pub struct Media {
-    pub ptr: *mut sys::libvlc_media_t,
+    pub(crate) ptr: *mut sys::libvlc_media_t,
 }
 
 impl Media {
@@ -180,6 +180,11 @@ impl Media {
             sys::libvlc_media_tracks_release(p_track, n);
             Some(track)
         }
+    }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_media_t {
+        self.ptr
     }
 }
 

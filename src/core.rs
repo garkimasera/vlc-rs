@@ -25,7 +25,7 @@ pub fn compiler() -> String {
 }
 
 pub struct Instance {
-    pub ptr: *mut sys::libvlc_instance_t,
+    pub(crate) ptr: *mut sys::libvlc_instance_t,
 }
 
 impl Instance {
@@ -102,6 +102,11 @@ impl Instance {
             sys::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
         }
     }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_instance_t {
+        self.ptr
+    }
 }
 
 impl Drop for Instance {
@@ -130,6 +135,13 @@ unsafe extern "C" fn logging_cb(
 /// List of module description.
 pub struct ModuleDescriptionList {
     ptr: *mut sys::libvlc_module_description_t,
+}
+
+impl ModuleDescriptionList {
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_module_description_t {
+        self.ptr
+    }
 }
 
 impl Drop for ModuleDescriptionList {
@@ -273,8 +285,8 @@ pub enum Event {
 }
 
 pub struct EventManager<'a> {
-    pub ptr: *mut sys::libvlc_event_manager_t,
-    pub _phantomdata: ::std::marker::PhantomData<&'a sys::libvlc_event_manager_t>,
+    pub(crate) ptr: *mut sys::libvlc_event_manager_t,
+    pub(crate) _phantomdata: ::std::marker::PhantomData<&'a sys::libvlc_event_manager_t>,
 }
 
 impl<'a> EventManager<'a> {
@@ -297,12 +309,17 @@ impl<'a> EventManager<'a> {
             Err(())
         }
     }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_event_manager_t {
+        self.ptr
+    }
 }
 
 unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data: *mut c_void) {
     let f: &Box<Fn(Event, VLCObject) + Send + 'static> = ::std::mem::transmute(data);
 
-    f(conv_event(pe), VLCObject{_ptr: (*pe).p_obj});
+    f(conv_event(pe), VLCObject{ ptr: (*pe).p_obj });
 }
 
 // Convert c-style libvlc_event_t to Event
@@ -479,10 +496,24 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
 }
 
 pub struct VLCObject {
-    _ptr: *mut c_void,
+    ptr: *mut c_void,
+}
+
+impl VLCObject {
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut c_void {
+        self.ptr
+    }
 }
 
 pub struct Log {
-    pub ptr: *const sys::libvlc_log_t
+    pub(crate) ptr: *const sys::libvlc_log_t
+}
+
+impl Log {
+    /// Returns raw pointer
+    pub fn raw(&self) -> *const sys::libvlc_log_t {
+        self.ptr
+    }
 }
 

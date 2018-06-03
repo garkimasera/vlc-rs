@@ -12,7 +12,7 @@ use std::mem::transmute;
 
 /// A LibVLC media player plays one media (usually in a custom drawable).
 pub struct MediaPlayer {
-    pub ptr: *mut sys::libvlc_media_player_t,
+    pub(crate) ptr: *mut sys::libvlc_media_player_t,
 }
 
 impl MediaPlayer {
@@ -310,6 +310,11 @@ impl MediaPlayer {
     /// Set if, and how, the video title will be shown when media is played.
     pub fn set_video_title_display(&self, position: Position, timeout: u32) {
         unsafe{ sys::libvlc_media_player_set_video_title_display(self.ptr, position, timeout); }
+    }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_media_player_t {
+        self.ptr
     }
 }
 

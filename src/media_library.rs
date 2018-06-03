@@ -6,7 +6,7 @@ use sys;
 use ::{Instance, MediaList};
 
 pub struct MediaLibrary {
-    pub ptr: *mut sys::libvlc_media_library_t,
+    pub(crate) ptr: *mut sys::libvlc_media_library_t,
 }
 
 impl MediaLibrary {
@@ -31,6 +31,11 @@ impl MediaLibrary {
             let p = sys::libvlc_media_library_media_list(self.ptr);
             if p.is_null() { None }else{ Some(MediaList{ptr: p}) }
         }
+    }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_media_library_t {
+        self.ptr
     }
 }
 

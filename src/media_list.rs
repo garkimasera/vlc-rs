@@ -6,7 +6,7 @@ use sys;
 use ::{Instance, Media, EventManager};
 
 pub struct MediaList {
-    pub ptr: *mut sys::libvlc_media_list_t,
+    pub(crate) ptr: *mut sys::libvlc_media_list_t,
 }
 
 impl MediaList {
@@ -103,6 +103,11 @@ impl MediaList {
             assert!(!p.is_null());
             EventManager{ptr: p, _phantomdata: ::std::marker::PhantomData}
         }
+    }
+
+    /// Returns raw pointer
+    pub fn raw(&self) -> *mut sys::libvlc_media_list_t {
+        self.ptr
     }
 }
 
