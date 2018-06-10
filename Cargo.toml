@@ -1,6 +1,6 @@
 [package]
 name = "vlc-rs"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["T. Okubo <t.okubo.rx78+github@gmail.com>"]
 
 description = "Rust bindings for libVLC media framework."

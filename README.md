@@ -9,7 +9,7 @@ Please add the following dependencies to your Cargo.toml.
 
 ```Toml
 [dependencies]
-vlc-rs = "0.2"
+vlc-rs = "0.3"
 ```
 
 Or:
