@@ -43,6 +43,25 @@ impl MediaPlayer {
         }
     }
 
+    /// Set volume of audio playback.
+    /// Volume is specified in 0-100, where 100 is the max.
+    pub fn set_volume(&self, volume: i32) -> Option<()> {
+        unsafe {
+            match sys::libvlc_audio_set_volume(self.ptr, volume) {
+                -1 => None,
+                _ => Some(())
+            }
+        }
+    }
+
+    /// Get volume of audio playback.
+    /// Volume is between 0 and 100, 100 is the max volume.
+    pub fn get_volume(&self) -> i32 {
+        unsafe {
+            sys::libvlc_audio_get_volume(self.ptr)
+        }
+    }
+
     /// Get the Event Manager from which the media player send event.
     pub fn event_manager<'a>(&'a self) -> EventManager<'a> {
         unsafe{
