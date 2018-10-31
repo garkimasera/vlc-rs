@@ -2,9 +2,11 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use std::ptr::null;
+use std::ptr;
 use std::borrow::Cow;
 use std::marker::PhantomData;
+use std::ffi::CString;
+use std::i32;
 use sys;
 use ::tools::{to_cstr, from_cstr, from_cstr_ref};
 use ::libc::{c_void, c_char, c_int};
@@ -26,20 +28,43 @@ pub fn compiler() -> String {
 
 pub struct Instance {
     pub(crate) ptr: *mut sys::libvlc_instance_t,
+
 }
 
 impl Instance {
-    /// Create and initialize a libvlc instance. 
-    pub fn new() -> Option<Instance> {
+    /// Create and initialize a libvlc instance with specified args.
+    /// Note: args.len() has to be less or equal to i32::MAX
+    /// Note: libvlc discourages using arguments as these are not guaranteed to be stable between different versions of libvlc
+    pub fn with_args(args: Option<Vec<String>>) -> Option<Instance> {
+        let args_c_ptr: Vec<*const c_char> ;
+        let args_c: Vec<CString>;
+        if let Some(argv) = args {
+            args_c = argv.into_iter()
+                .map(|x| CString::new(x).expect("Error: Unexpected null byte")).collect();
+            args_c_ptr = args_c.iter().map(|x| x.as_ptr()).collect();
+        } else {
+            args_c_ptr = Vec::new();
+        }
+        
+
         unsafe{
-            let p = sys::libvlc_new(0, null());
-            
+            let p = if args_c_ptr.is_empty() {
+                sys::libvlc_new(0, ptr::null())
+            } else {
+                sys::libvlc_new(args_c_ptr.len() as i32, args_c_ptr.as_ptr())
+            };
+
             if p.is_null() {
                 return None;
             }
             
             Some(Instance{ptr: p})
         }
+    }
+
+    /// Create and initialize a libvlc instance. 
+    pub fn new() -> Option<Instance> {
+        Instance::with_args(None)
     }
 
     /// Try to start a user interface for the libvlc instance.
