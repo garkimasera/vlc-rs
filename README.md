@@ -1,4 +1,4 @@
-# vlc-rs
+# vlc-rs [![Build Status](https://travis-ci.org/garkimasera/vlc-rs.svg?branch=master)](https://travis-ci.org/garkimasera/vlc-rs)
 Rust bindings for libVLC media framework.
 
 ## Status
