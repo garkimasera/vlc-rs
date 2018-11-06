@@ -1,0 +1,16 @@
+language: rust
+
+rust:
+  - stable
+
+script:
+  - cargo build --all
+
+os:
+  - linux
+
+addons:
+  apt:
+    packages:
+      - libvlc-dev
+
