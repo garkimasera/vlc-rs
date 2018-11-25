@@ -31,6 +31,8 @@ pub struct Instance {
 
 }
 
+unsafe impl Send for Instance {}
+
 impl Instance {
     /// Create and initialize a libvlc instance with specified args.
     /// Note: args.len() has to be less or equal to i32::MAX
