@@ -28,6 +28,8 @@ pub struct Instance {
     pub(crate) ptr: *mut sys::libvlc_instance_t,
 }
 
+unsafe impl Send for Instance {}
+
 impl Instance {
     /// Create and initialize a libvlc instance. 
     pub fn new() -> Option<Instance> {
