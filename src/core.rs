@@ -12,7 +12,7 @@ use crate::sys;
 use crate::tools::{to_cstr, from_cstr, from_cstr_ref};
 use crate::enums::*;
 
-/// Retrieve libvlc version. 
+/// Retrieve libvlc version.
 pub fn version() -> String {
     unsafe{
         from_cstr_ref(sys::libvlc_get_version()).unwrap().into_owned()
@@ -45,7 +45,7 @@ impl Instance {
         } else {
             args_c_ptr = Vec::new();
         }
-        
+
 
         unsafe{
             let p = if args_c_ptr.is_empty() {
@@ -57,12 +57,12 @@ impl Instance {
             if p.is_null() {
                 return None;
             }
-            
+
             Some(Instance{ptr: p})
         }
     }
 
-    /// Create and initialize a libvlc instance. 
+    /// Create and initialize a libvlc instance.
     pub fn new() -> Option<Instance> {
         Instance::with_args(None)
     }
@@ -122,7 +122,7 @@ impl Instance {
     /// Set logging callback
     pub fn set_log<F: Fn(LogLevel, Log, Cow<str>) + Send + 'static>(&self, f: F) {
         let cb: Box<Box<dyn Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
-        
+
         unsafe{
             sys::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
         }
@@ -199,7 +199,7 @@ pub struct ModuleDescription {
     pub help:      Option<String>,
 }
 
-/// Description of a module. 
+/// Description of a module.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ModuleDescriptionRef<'a> {
     pub name:      Option<Cow<'a, str>>,
@@ -257,7 +257,7 @@ pub enum Event {
     MediaFreed,
     MediaStateChanged(State),
     MediaSubItemTreeAdded,
-    
+
     MediaPlayerMediaChanged,
     MediaPlayerNothingSpecial,
     MediaPlayerOpening,
@@ -321,7 +321,7 @@ impl<'a> EventManager<'a> {
         // Explicit type annotation is needed
         let callback: Box<Box<dyn Fn(Event, VLCObject) + Send + 'static>> =
             Box::new(Box::new(callback));
-        
+
         let result = unsafe{
             sys::libvlc_event_attach(
                 self.ptr, event_type as i32, event_manager_callback,
@@ -350,7 +350,7 @@ unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data
 // Convert c-style libvlc_event_t to Event
 fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
     let event_type: EventType = unsafe{ ::std::mem::transmute((*pe)._type) };
-    
+
     match event_type {
         EventType::MediaMetaChanged => {
             unsafe{
