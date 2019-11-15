@@ -2,10 +2,10 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::{Instance, EventManager};
-use ::enums::{State, Meta, TrackType};
-use ::tools::{to_cstr, from_cstr, path_to_cstr};
+use crate::sys;
+use crate::{Instance, EventManager};
+use crate::enums::{State, Meta, TrackType};
+use crate::tools::{to_cstr, from_cstr, path_to_cstr};
 use std::path::Path;
 
 pub struct Media {
