@@ -2,12 +2,12 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::Instance;
-use ::Media;
-use ::EventManager;
-use ::libc::{c_void, c_uint};
-use ::enums::{State, Position};
+use crate::sys;
+use crate::Instance;
+use crate::Media;
+use crate::EventManager;
+use libc::{c_void, c_uint};
+use crate::enums::{State, Position};
 use std::mem::transmute;
 
 /// A LibVLC media player plays one media (usually in a custom drawable).
