@@ -88,10 +88,10 @@ impl MediaPlayer {
     pub fn set_callbacks<F>(
         &self,
         play: F,
-        pause: Option<Box<Fn(i64) + Send + 'static>>,
-        resume: Option<Box<Fn(i64) + Send + 'static>>,
-        flush: Option<Box<Fn(i64) + Send + 'static>>,
-        drain: Option<Box<Fn() + Send + 'static>>)
+        pause: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        resume: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        flush: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        drain: Option<Box<dyn Fn() + Send + 'static>>)
         where F: Fn(*const c_void, u32, i64) + Send + 'static,
     {
         let flag_pause = pause.is_some();
@@ -326,11 +326,11 @@ impl Drop for MediaPlayer {
 
 // For audio_set_callbacks
 struct AudioCallbacksData {
-    play: Box<Fn(*const c_void, u32, i64) + Send + 'static>,
-    pause: Option<Box<Fn(i64) + Send + 'static>>,
-    resume: Option<Box<Fn(i64) + Send + 'static>>,
-    flush: Option<Box<Fn(i64) + Send + 'static>>,
-    drain: Option<Box<Fn() + Send + 'static>>,
+    play: Box<dyn Fn(*const c_void, u32, i64) + Send + 'static>,
+    pause: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    resume: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    flush: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    drain: Option<Box<dyn Fn() + Send + 'static>>,
 }
 
 unsafe extern "C" fn audio_cb_play(
