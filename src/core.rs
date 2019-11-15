@@ -121,7 +121,7 @@ impl Instance {
 
     /// Set logging callback
     pub fn set_log<F: Fn(LogLevel, Log, Cow<str>) + Send + 'static>(&self, f: F) {
-        let cb: Box<Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
+        let cb: Box<Box<dyn Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
         
         unsafe{
             sys::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
@@ -149,7 +149,7 @@ const BUF_SIZE: usize = 1024; // Write log message to the buffer by vsnprintf.
 unsafe extern "C" fn logging_cb(
     data: *mut c_void, level: c_int, ctx: *const sys::libvlc_log_t, fmt: *const c_char, args: sys::va_list) {
 
-    let f: &Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static> = ::std::mem::transmute(data);
+    let f: &Box<dyn Fn(LogLevel, Log, Cow<str>) + Send + 'static> = ::std::mem::transmute(data);
     let mut buf: [c_char; BUF_SIZE] = [0; BUF_SIZE];
 
     vsnprintf(buf.as_mut_ptr(), BUF_SIZE, fmt, args);
@@ -319,7 +319,7 @@ impl<'a> EventManager<'a> {
         where F: Fn(Event, VLCObject) + Send + 'static
     {
         // Explicit type annotation is needed
-        let callback: Box<Box<Fn(Event, VLCObject) + Send + 'static>> =
+        let callback: Box<Box<dyn Fn(Event, VLCObject) + Send + 'static>> =
             Box::new(Box::new(callback));
         
         let result = unsafe{
@@ -342,7 +342,7 @@ impl<'a> EventManager<'a> {
 }
 
 unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data: *mut c_void) {
-    let f: &Box<Fn(Event, VLCObject) + Send + 'static> = ::std::mem::transmute(data);
+    let f: &Box<dyn Fn(Event, VLCObject) + Send + 'static> = ::std::mem::transmute(data);
 
     f(conv_event(pe), VLCObject{ ptr: (*pe).p_obj });
 }
