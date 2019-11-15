@@ -7,10 +7,10 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 use std::ffi::CString;
 use std::i32;
-use sys;
-use ::tools::{to_cstr, from_cstr, from_cstr_ref};
-use ::libc::{c_void, c_char, c_int};
-use ::enums::*;
+use libc::{c_void, c_char, c_int};
+use crate::sys;
+use crate::tools::{to_cstr, from_cstr, from_cstr_ref};
+use crate::enums::*;
 
 /// Retrieve libvlc version. 
 pub fn version() -> String {
