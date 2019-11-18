@@ -79,6 +79,50 @@ impl Instance {
         else { Err(()) }
     }
 
+    pub fn add_broadcast(&self, name: &str, input: &str, output: &str, options: Option<Vec<String>>, enabled: bool, loop_broadcast: bool,) -> Result<(), ()> {
+        let name= to_cstr(name);
+        let input = to_cstr(input);
+        let output = to_cstr(output);
+        let opts_c_ptr: Vec<*const c_char> ;
+        let opts_c: Vec<CString>;
+        let enabled = if enabled { 1 } else { 0 };
+        let loop_broadcast = if loop_broadcast { 1 } else { 0 };
+        if let Some(vec) = options {
+            opts_c = vec.into_iter()
+                .map(|x| CString::new(x).expect("Error: Unexpected null byte")).collect();
+            opts_c_ptr = opts_c.iter().map(|x| x.as_ptr()).collect();
+        } else {
+            opts_c_ptr = Vec::new();
+        }
+        let result = unsafe {
+            if opts_c_ptr.is_empty() {
+                sys::libvlc_vlm_add_broadcast(self.ptr, name.as_ptr(), input.as_ptr(), output.as_ptr(), 0, ptr::null(), enabled, loop_broadcast)
+            } else {
+                sys::libvlc_vlm_add_broadcast(self.ptr, name.as_ptr(), input.as_ptr(), output.as_ptr(), opts_c_ptr.len() as i32, opts_c_ptr.as_ptr(), enabled, loop_broadcast)
+            }
+        };
+        if result == 0 { Ok(()) }
+        else { Err(()) }
+    }
+
+    pub fn play_media(&self, name: &str) -> Result<(), ()> {
+        let name = to_cstr(name);
+        let result = unsafe {
+            sys::libvlc_vlm_play_media(self.ptr, name.as_ptr())
+        };
+        if result == 0 { Ok(()) }
+        else { Err(()) }
+    }
+
+    pub fn stop_media(&self, name: &str) -> Result<(), ()> {
+        let name = to_cstr(name);
+        let result = unsafe {
+            sys::libvlc_vlm_stop_media(self.ptr, name.as_ptr())
+        };
+        if result == 0 { Ok(()) }
+        else { Err(()) }
+    }
+
     /// Sets the application name.
     /// LibVLC passes this as the user agent string when a protocol requires it.
     pub fn set_user_agent(&self, name: &str, http: &str) {
