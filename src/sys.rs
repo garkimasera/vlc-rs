@@ -38,7 +38,7 @@ pub type libvlc_callback_t = unsafe extern "C" fn(*const libvlc_event_t, *mut c_
 pub type va_list = *mut c_void;
 pub type libvlc_log_cb = unsafe extern "C" fn(*mut c_void, c_int, *const libvlc_log_t, *const c_char, va_list);
 
-pub use LogLevel as libvlc_log_level;
+pub use crate::enums::LogLevel as libvlc_log_level;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -99,13 +99,13 @@ pub unsafe fn libvlc_delay(pts: i64) -> i64 {
 // From libvlc_media.h
 pub enum libvlc_media_t {}
 
-pub use Meta as libvlc_meta_t;
-pub use State as libvlc_state_t;
+pub use crate::enums::Meta as libvlc_meta_t;
+pub use crate::enums::State as libvlc_state_t;
 
 pub const libvlc_media_option_trusted: u32 = 0x2;
 pub const libvlc_media_option_unique: u32 = 0x100;
 
-pub use TrackType as libvlc_track_type_t;
+pub use crate::enums::TrackType as libvlc_track_type_t;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -335,8 +335,8 @@ pub enum libvlc_navigate_mode_t {
     libvlc_navigate_right,
 }
 
-pub use Position as libvlc_position_t;
-pub use VideoAdjustOption as libvlc_video_adjust_option;
+pub use crate::enums::Position as libvlc_position_t;
+pub use crate::enums::VideoAdjustOption as libvlc_video_adjust_option;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -575,7 +575,7 @@ extern "C" {
 }
 
 // From libvlc_events.h
-pub use EventType as libvlc_event_e;
+pub use crate::enums::EventType as libvlc_event_e;
 
 #[repr(C)]
 #[derive(Clone, Copy)]

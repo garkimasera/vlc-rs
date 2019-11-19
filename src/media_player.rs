@@ -2,12 +2,12 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::Instance;
-use ::Media;
-use ::EventManager;
-use ::libc::{c_void, c_uint};
-use ::enums::{State, Position};
+use crate::sys;
+use crate::Instance;
+use crate::Media;
+use crate::EventManager;
+use libc::{c_void, c_uint};
+use crate::enums::{State, Position};
 use std::mem::transmute;
 
 /// A LibVLC media player plays one media (usually in a custom drawable).
@@ -88,17 +88,17 @@ impl MediaPlayer {
     pub fn set_callbacks<F>(
         &self,
         play: F,
-        pause: Option<Box<Fn(i64) + Send + 'static>>,
-        resume: Option<Box<Fn(i64) + Send + 'static>>,
-        flush: Option<Box<Fn(i64) + Send + 'static>>,
-        drain: Option<Box<Fn() + Send + 'static>>)
+        pause: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        resume: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        flush: Option<Box<dyn Fn(i64) + Send + 'static>>,
+        drain: Option<Box<dyn Fn() + Send + 'static>>)
         where F: Fn(*const c_void, u32, i64) + Send + 'static,
     {
         let flag_pause = pause.is_some();
         let flag_resume = resume.is_some();
         let flag_flush = flush.is_some();
         let flag_drain = drain.is_some();
-        
+
         let data = AudioCallbacksData {
             play: Box::new(play), pause: pause, resume: resume,
             flush: flush, drain: drain,
@@ -117,12 +117,12 @@ impl MediaPlayer {
         }
     }
 
-    /// Set the NSView handler where the media player should render its video output. 
+    /// Set the NSView handler where the media player should render its video output.
     pub fn set_nsobject(&self, drawable: *mut c_void) {
         unsafe{ sys::libvlc_media_player_set_nsobject(self.ptr, drawable) };
     }
 
-    /// Get the NSView handler previously set with set_nsobject(). 
+    /// Get the NSView handler previously set with set_nsobject().
     pub fn get_nsobject(&self) -> Option<*mut c_void> {
         let nso = unsafe{ sys::libvlc_media_player_get_nsobject(self.ptr) };
         if nso.is_null() { None }else{ Some(nso) }
@@ -133,7 +133,7 @@ impl MediaPlayer {
         unsafe{ sys::libvlc_media_player_set_xwindow(self.ptr, drawable) };
     }
 
-    /// Get the X Window System window identifier previously set with set_xwindow(). 
+    /// Get the X Window System window identifier previously set with set_xwindow().
     pub fn get_xwindow(&self) -> Option<u32> {
         let id = unsafe{ sys::libvlc_media_player_get_xwindow(self.ptr) };
         if id == 0 { None }else{ Some(id) }
@@ -326,18 +326,18 @@ impl Drop for MediaPlayer {
 
 // For audio_set_callbacks
 struct AudioCallbacksData {
-    play: Box<Fn(*const c_void, u32, i64) + Send + 'static>,
-    pause: Option<Box<Fn(i64) + Send + 'static>>,
-    resume: Option<Box<Fn(i64) + Send + 'static>>,
-    flush: Option<Box<Fn(i64) + Send + 'static>>,
-    drain: Option<Box<Fn() + Send + 'static>>,
+    play: Box<dyn Fn(*const c_void, u32, i64) + Send + 'static>,
+    pause: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    resume: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    flush: Option<Box<dyn Fn(i64) + Send + 'static>>,
+    drain: Option<Box<dyn Fn() + Send + 'static>>,
 }
 
 unsafe extern "C" fn audio_cb_play(
     data: *mut c_void, samples: *const c_void, count: c_uint, pts: i64) {
     let data: &AudioCallbacksData = transmute(data as *mut AudioCallbacksData);
     (data.play)(samples, count, pts);
-    
+
 }
 
 unsafe extern "C" fn audio_cb_pause(data: *mut c_void, pts: i64) {

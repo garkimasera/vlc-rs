@@ -8,6 +8,7 @@ keywords = ["libVLC", "bindings"]
 repository = "https://github.com/garkimasera/vlc-rs"
 license = "MIT"
 readme = "README.md"
+edition = "2018"
 
 [lib]
 name = "vlc"
