@@ -5,7 +5,7 @@
 use std::ptr;
 use std::borrow::Cow;
 use std::marker::PhantomData;
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
 use std::i32;
 use sys;
 use ::tools::{to_cstr, from_cstr, from_cstr_ref};
@@ -190,6 +190,15 @@ impl Instance {
         }
     }
 
+    /// Returns the VLM event manager
+    pub fn vlm_event_manager<'a>(&'a self) -> EventManager<'a> {
+        unsafe{
+            let p = sys::libvlc_vlm_get_event_manager(self.ptr);
+            assert!(!p.is_null());
+            EventManager{ptr: p, _phantomdata: ::std::marker::PhantomData}
+        }
+    }
+
     /// Set logging callback
     pub fn set_log<F: Fn(LogLevel, Log, Cow<str>) + Send + 'static>(&self, f: F) {
         let cb: Box<Box<Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
@@ -367,17 +376,17 @@ pub enum Event {
     MediaDiscovererStarted,
     MediaDiscovererEnded,
 
-    VlmMediaAdded,
-    VlmMediaRemoved,
-    VlmMediaChanged,
-    VlmMediaInstanceStarted,
-    VlmMediaInstanceStopped,
-    VlmMediaInstanceStatusInit,
-    VlmMediaInstanceStatusOpening,
-    VlmMediaInstanceStatusPlaying,
-    VlmMediaInstanceStatusPause,
-    VlmMediaInstanceStatusEnd,
-    VlmMediaInstanceStatusError
+    VlmMediaAdded(Option<String>, Option<String>),
+    VlmMediaRemoved(Option<String>, Option<String>),
+    VlmMediaChanged(Option<String>, Option<String>),
+    VlmMediaInstanceStarted(Option<String>, Option<String>),
+    VlmMediaInstanceStopped(Option<String>, Option<String>),
+    VlmMediaInstanceStatusInit(Option<String>, Option<String>),
+    VlmMediaInstanceStatusOpening(Option<String>, Option<String>),
+    VlmMediaInstanceStatusPlaying(Option<String>, Option<String>),
+    VlmMediaInstanceStatusPause(Option<String>, Option<String>),
+    VlmMediaInstanceStatusEnd(Option<String>, Option<String>),
+    VlmMediaInstanceStatusError(Option<String>, Option<String>)
 }
 
 pub struct EventManager<'a> {
@@ -556,37 +565,59 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
             Event::MediaDiscovererEnded
         },
         EventType::VlmMediaAdded => {
-            Event::VlmMediaAdded
+            unsafe {
+                Event::VlmMediaAdded(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaRemoved => {
-            Event::VlmMediaRemoved
+            unsafe {
+                Event::VlmMediaRemoved(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaChanged => {
-            Event::VlmMediaChanged
+            unsafe {
+                Event::VlmMediaChanged(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStarted => {
-            Event::VlmMediaInstanceStarted
+            unsafe {
+                Event::VlmMediaInstanceStarted(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStopped => {
-            Event::VlmMediaInstanceStopped
+            unsafe {
+                Event::VlmMediaInstanceStopped(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusInit => {
-            Event::VlmMediaInstanceStatusInit
+            unsafe {
+                Event::VlmMediaInstanceStatusInit(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusOpening => {
-            Event::VlmMediaInstanceStatusOpening
+            unsafe {
+                Event::VlmMediaInstanceStatusOpening(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusPlaying => {
-            Event::VlmMediaInstanceStatusPlaying
+            unsafe {
+                Event::VlmMediaInstanceStatusPlaying(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusPause => {
-            Event::VlmMediaInstanceStatusPause
+            unsafe {
+                Event::VlmMediaInstanceStatusPause(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusEnd => {
-            Event::VlmMediaInstanceStatusEnd
+            unsafe {
+                Event::VlmMediaInstanceStatusEnd(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
         EventType::VlmMediaInstanceStatusError => {
-            Event::VlmMediaInstanceStatusError
+            unsafe {
+                Event::VlmMediaInstanceStatusError(from_cstr((*pe).u.vlm_media_event.psz_instance_name), from_cstr((*pe).u.vlm_media_event.psz_media_name))
+            }
         },
     }
 }
