@@ -105,6 +105,31 @@ impl Instance {
         else { Err(()) }
     }
 
+    pub fn add_vod(&self, name: &str, input: &str, mux: &str, options: Option<Vec<String>>, enabled: bool) -> Result<(), ()> {
+        let name= to_cstr(name);
+        let input = to_cstr(input);
+        let mux = to_cstr(mux);
+        let opts_c_ptr: Vec<*const c_char> ;
+        let opts_c: Vec<CString>;
+        let enabled = if enabled { 1 } else { 0 };
+        if let Some(vec) = options {
+            opts_c = vec.into_iter()
+                .map(|x| CString::new(x).expect("Error: Unexpected null byte")).collect();
+            opts_c_ptr = opts_c.iter().map(|x| x.as_ptr()).collect();
+        } else {
+            opts_c_ptr = Vec::new();
+        }
+        let result = unsafe {
+            if opts_c_ptr.is_empty() {
+                sys::libvlc_vlm_add_vod(self.ptr, name.as_ptr(), input.as_ptr(), 0, ptr::null(), enabled, mux.as_ptr())
+            } else {
+                sys::libvlc_vlm_add_vod(self.ptr, name.as_ptr(), input.as_ptr(), opts_c_ptr.len() as i32, opts_c_ptr.as_ptr(), enabled, mux.as_ptr())
+            }
+        };
+        if result == 0 { Ok(()) }
+        else { Err(()) }
+    }
+
     pub fn play_media(&self, name: &str) -> Result<(), ()> {
         let name = to_cstr(name);
         let result = unsafe {
