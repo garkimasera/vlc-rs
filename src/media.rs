@@ -12,6 +12,8 @@ pub struct Media {
     pub(crate) ptr: *mut sys::libvlc_media_t,
 }
 
+unsafe impl Send for Media {}
+
 impl Media {
     /// Create a media with a certain given media resource location, for instance a valid URL. 
     pub fn new_location(instance: &Instance, mrl: &str) -> Option<Media> {
