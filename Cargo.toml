@@ -16,3 +16,4 @@ crate-type = ["rlib"]
 
 [dependencies]
 libc = "0.2"
+libvlc-sys = { path = "libvlc-sys" }
