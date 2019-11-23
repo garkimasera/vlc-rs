@@ -154,7 +154,7 @@ unsafe extern "C" fn logging_cb(
 
     vsnprintf(buf.as_mut_ptr(), BUF_SIZE, fmt, args);
 
-    f(::std::mem::transmute(level), Log{ptr: ctx}, from_cstr_ref(buf.as_ptr()).unwrap());
+    f((level as u32).into(), Log{ptr: ctx}, from_cstr_ref(buf.as_ptr()).unwrap());
 }
 
 /// List of module description.
@@ -349,7 +349,7 @@ unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data
 
 // Convert c-style libvlc_event_t to Event
 fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
-    let event_type: EventType = unsafe{ ::std::mem::transmute((*pe)._type) };
+    let event_type: EventType = (unsafe{ (*pe)._type } as u32).into();
 
     match event_type {
         EventType::MediaMetaChanged => {
