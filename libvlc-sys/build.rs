@@ -13,6 +13,11 @@ fn main() {
         .use_core()
         // Use libc
         .ctypes_prefix("libc")
+        // Whitelist
+        .whitelist_type(".*vlc.*")
+        .whitelist_function(".*vlc.*")
+        .whitelist_var(".*vlc.*")
+        .whitelist_function("vsnprintf")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate()
         .expect("Unable to generate bindings");
