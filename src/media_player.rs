@@ -2,7 +2,7 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use crate::sys;
+use vlc_sys as sys;
 use crate::Instance;
 use crate::Media;
 use crate::EventManager;
@@ -265,7 +265,7 @@ impl MediaPlayer {
 
     /// Get current movie state.
     pub fn state(&self) -> State {
-        unsafe{ sys::libvlc_media_player_get_state(self.ptr) }
+        unsafe{ sys::libvlc_media_player_get_state(self.ptr) }.into()
     }
 
     /// How many video outputs does this media player have?
@@ -309,7 +309,7 @@ impl MediaPlayer {
 
     /// Set if, and how, the video title will be shown when media is played.
     pub fn set_video_title_display(&self, position: Position, timeout: u32) {
-        unsafe{ sys::libvlc_media_player_set_video_title_display(self.ptr, position, timeout); }
+        unsafe{ sys::libvlc_media_player_set_video_title_display(self.ptr, position as i32, timeout); }
     }
 
     /// Returns raw pointer

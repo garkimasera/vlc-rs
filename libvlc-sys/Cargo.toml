@@ -6,7 +6,7 @@ edition = "2018"
 build = "build.rs"
 
 [lib]
-name = "libvlc_sys"
+name = "vlc_sys"
 crate-type = ["rlib"]
 
 [dependencies]

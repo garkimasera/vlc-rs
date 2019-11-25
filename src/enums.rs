@@ -2,7 +2,7 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use libvlc_sys as sys;
+use vlc_sys as sys;
 
 macro_rules! define_enum {
     ($enum_name:ident, $original_type:ident; $($value:ident = $c_value:ident,)*) => {

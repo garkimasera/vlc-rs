@@ -7,8 +7,9 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 use std::ffi::CString;
 use std::i32;
+use std::convert::TryInto;
 use libc::{c_void, c_char, c_int};
-use crate::sys;
+use vlc_sys as sys;
 use crate::tools::{to_cstr, from_cstr, from_cstr_ref};
 use crate::enums::*;
 
@@ -124,7 +125,7 @@ impl Instance {
         let cb: Box<Box<dyn Fn(LogLevel, Log, Cow<str>) + Send + 'static>> = Box::new(Box::new(f));
 
         unsafe{
-            sys::libvlc_log_set(self.ptr, logging_cb, Box::into_raw(cb) as *mut _);
+            sys::libvlc_log_set(self.ptr, Some(logging_cb), Box::into_raw(cb) as *mut _);
         }
     }
 
@@ -142,17 +143,14 @@ impl Drop for Instance {
     }
 }
 
-extern "C" {
-    fn vsnprintf(s: *mut c_char, n: usize, fmt: *const c_char, arg: sys::va_list);
-}
 const BUF_SIZE: usize = 1024; // Write log message to the buffer by vsnprintf.
 unsafe extern "C" fn logging_cb(
-    data: *mut c_void, level: c_int, ctx: *const sys::libvlc_log_t, fmt: *const c_char, args: sys::va_list) {
+    data: *mut c_void, level: c_int, ctx: *const sys::libvlc_log_t, fmt: *const c_char, args: *mut sys::__va_list_tag) {
 
     let f: &Box<dyn Fn(LogLevel, Log, Cow<str>) + Send + 'static> = ::std::mem::transmute(data);
     let mut buf: [c_char; BUF_SIZE] = [0; BUF_SIZE];
 
-    vsnprintf(buf.as_mut_ptr(), BUF_SIZE, fmt, args);
+    sys::vsnprintf(buf.as_mut_ptr(), BUF_SIZE.try_into().unwrap(), fmt, args);
 
     f((level as u32).into(), Log{ptr: ctx}, from_cstr_ref(buf.as_ptr()).unwrap());
 }
@@ -324,7 +322,7 @@ impl<'a> EventManager<'a> {
 
         let result = unsafe{
             sys::libvlc_event_attach(
-                self.ptr, event_type as i32, event_manager_callback,
+                self.ptr, event_type as i32, Some(event_manager_callback),
                 Box::into_raw(callback) as *mut c_void)
         };
 
@@ -349,12 +347,12 @@ unsafe extern "C" fn event_manager_callback(pe: *const sys::libvlc_event_t, data
 
 // Convert c-style libvlc_event_t to Event
 fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
-    let event_type: EventType = (unsafe{ (*pe)._type } as u32).into();
+    let event_type: EventType = (unsafe{ (*pe).type_ } as u32).into();
 
     match event_type {
         EventType::MediaMetaChanged => {
             unsafe{
-                Event::MediaMetaChanged((*pe).u.media_meta_changed.meta_type)
+                Event::MediaMetaChanged((*pe).u.media_meta_changed.meta_type.into())
             }
         },
         EventType::MediaSubItemAdded => {
@@ -375,7 +373,8 @@ fn conv_event(pe: *const sys::libvlc_event_t) -> Event {
         },
         EventType::MediaStateChanged => {
             unsafe{
-                Event::MediaStateChanged((*pe).u.media_state_changed.new_state)
+                let new_state: sys::libvlc_state_t = (*pe).u.media_state_changed.new_state.try_into().unwrap();
+                Event::MediaStateChanged(new_state.into())
             }
         },
         EventType::MediaSubItemTreeAdded => {
