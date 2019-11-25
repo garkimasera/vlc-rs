@@ -15,6 +15,7 @@ mod media_library;
 mod enums;
 mod video;
 mod audio;
+mod vlm;
 
 pub use enums::*;
 pub use core::*;
@@ -24,3 +25,4 @@ pub use media_list::*;
 pub use media_library::*;
 pub use video::*;
 pub use audio::*;
+pub use vlm::*;
