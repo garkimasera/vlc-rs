@@ -1,8 +1,9 @@
-use ::{sys, Instance};
 use std::ffi::CString;
-use tools::{to_cstr, from_cstr};
 use std::os::raw::c_char;
 use std::ptr;
+
+use crate::{Instance, sys};
+use crate::tools::{from_cstr, to_cstr};
 
 pub trait Vlm {
     fn add_broadcast(&self, name: &str, input: &str, output: &str, options: Option<Vec<String>>, enabled: bool, loop_broadcast: bool, ) -> Result<(), ()>;
