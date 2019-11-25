@@ -2,10 +2,10 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::{Instance, EventManager};
-use ::enums::{State, Meta, TrackType};
-use ::tools::{to_cstr, from_cstr, path_to_cstr};
+use crate::sys;
+use crate::{Instance, EventManager};
+use crate::enums::{State, Meta, TrackType};
+use crate::tools::{to_cstr, from_cstr, path_to_cstr};
 use std::path::Path;
 
 pub struct Media {
@@ -15,44 +15,44 @@ pub struct Media {
 unsafe impl Send for Media {}
 
 impl Media {
-    /// Create a media with a certain given media resource location, for instance a valid URL. 
+    /// Create a media with a certain given media resource location, for instance a valid URL.
     pub fn new_location(instance: &Instance, mrl: &str) -> Option<Media> {
         let cstr = to_cstr(mrl);
-        
+
         unsafe{
             let p = sys::libvlc_media_new_location(instance.ptr, cstr.as_ptr());
             if p.is_null() {
                 return None;
             }
-            
+
             Some(Media{ptr: p})
         }
     }
 
-    /// Create a media for a certain file path. 
+    /// Create a media for a certain file path.
     pub fn new_path<T: AsRef<Path>>(instance: &Instance, path: T) -> Option<Media> {
         let cstr = match path_to_cstr(path.as_ref()) {
             Ok(s) => s,
             Err(_) => { return None; },
         };
-        
+
         unsafe{
             let p = sys::libvlc_media_new_path(instance.ptr, cstr.as_ptr());
             if p.is_null() {
                 return None;
             }
-            
+
             Some(Media{ptr: p})
         }
     }
-    
+
     pub fn new_fd(instance: &Instance, fd: i32) -> Option<Media> {
         unsafe{
             let p = sys::libvlc_media_new_fd(instance.ptr, fd);
             if p.is_null() {
                 return None;
             }
-            
+
             Some(Media{ptr: p})
         }
     }
@@ -86,7 +86,7 @@ impl Media {
     }
 
     /// Set the meta of the media.
-    /// (This function will not save the meta, call save_meta in order to save the meta) 
+    /// (This function will not save the meta, call save_meta in order to save the meta)
     pub fn set_meta(&self, meta: Meta, value: &str) {
         unsafe{
             sys::libvlc_media_set_meta(self.ptr, meta, to_cstr(value).as_ptr());
@@ -111,7 +111,7 @@ impl Media {
         if time != -1 { Some(time) }else{ None }
     }
 
-    /// Parse a media. 
+    /// Parse a media.
     pub fn parse(&self) {
         unsafe{ sys::libvlc_media_parse(self.ptr) };
     }
@@ -235,4 +235,4 @@ pub struct VideoTrack {
 pub struct SubtitleTrack {
     pub encoding: Option<String>,
 }
-    
+

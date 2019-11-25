@@ -37,7 +37,7 @@ pub unsafe fn from_cstr_ref<'a>(p: *const c_char) -> Option<Cow<'a, str>> {
 
 // Create CString from &Path
 pub fn path_to_cstr(path: &Path) -> Result<CString, NulError> {
-    let path = try!(CString::new(path.to_string_lossy().into_owned()));
-    
+    let path = CString::new(path.to_string_lossy().into_owned())?;
+
     Ok(path)
 }

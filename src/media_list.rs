@@ -2,8 +2,8 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::{Instance, Media, EventManager};
+use crate::sys;
+use crate::{Instance, Media, EventManager};
 
 pub struct MediaList {
     pub(crate) ptr: *mut sys::libvlc_media_list_t,

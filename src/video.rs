@@ -2,12 +2,12 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::MediaPlayer;
-use ::TrackDescription;
-use ::enums::VideoAdjustOption;
-use ::tools::{to_cstr, from_cstr};
-use ::libc::c_void;
+use crate::sys;
+use crate::MediaPlayer;
+use crate::TrackDescription;
+use crate::enums::VideoAdjustOption;
+use crate::tools::{to_cstr, from_cstr};
+use libc::c_void;
 
 pub trait MediaPlayerVideoEx {
     fn toggle_fullscreen(&self);

@@ -2,14 +2,14 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use sys;
-use ::MediaPlayer;
-use ::TrackDescription;
-use ::tools::from_cstr;
+use crate::sys;
+use crate::MediaPlayer;
+use crate::TrackDescription;
+use crate::tools::from_cstr;
 
 pub trait MediaPlayerAudioEx {
     fn get_mute(&self) -> Option<bool>;
-    fn set_mute(&self, bool);
+    fn set_mute(&self, muted: bool);
     fn get_volume(&self) -> i32;
     fn set_volume(&self, volume: i32) -> Result<(), ()>;
     fn get_audio_track_description(&self) -> Option<Vec<TrackDescription>>;
