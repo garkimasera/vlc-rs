@@ -5,7 +5,7 @@
 use std::ptr;
 use std::borrow::Cow;
 use std::marker::PhantomData;
-use std::ffi::{CString, CStr};
+use std::ffi::CString;
 use std::i32;
 use std::convert::TryInto;
 use libc::{c_void, c_char, c_int};
