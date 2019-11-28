@@ -15,6 +15,8 @@ pub struct MediaPlayer {
     pub(crate) ptr: *mut sys::libvlc_media_player_t,
 }
 
+unsafe impl Send for MediaPlayer {}
+
 impl MediaPlayer {
     /// Create an empty Media Player object
     pub fn new(instance: &Instance) -> Option<MediaPlayer> {
