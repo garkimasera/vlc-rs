@@ -106,6 +106,7 @@ define_enum!(
     Gamma = libvlc_video_adjust_option_t_libvlc_adjust_Gamma,
 );
 
+#[cfg(feature = "v3_00")]
 define_enum!(
     ParseFlag, libvlc_media_parse_flag_t;
     DoInteract = libvlc_media_parse_flag_t_libvlc_media_do_interact,
