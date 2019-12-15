@@ -4,8 +4,6 @@
 
 extern crate libc;
 
-pub mod sys;
-
 mod tools;
 mod core;
 mod media;

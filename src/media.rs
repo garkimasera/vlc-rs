@@ -2,7 +2,7 @@
 // This file is part of vlc-rs.
 // Licensed under the MIT license, see the LICENSE file.
 
-use crate::sys;
+use vlc_sys as sys;
 use crate::{Instance, EventManager};
 use crate::enums::{State, Meta, TrackType};
 use crate::tools::{to_cstr, from_cstr, path_to_cstr};
@@ -78,7 +78,7 @@ impl Media {
     /// If the media has not yet been parsed this will return None.
     pub fn get_meta(&self, meta: Meta) -> Option<String> {
         unsafe{
-            let p_str = sys::libvlc_media_get_meta(self.ptr, meta);
+            let p_str = sys::libvlc_media_get_meta(self.ptr, meta as u32);
             let s = from_cstr(p_str);
             sys::libvlc_free(p_str as *mut ::libc::c_void);
             s
@@ -89,7 +89,7 @@ impl Media {
     /// (This function will not save the meta, call save_meta in order to save the meta)
     pub fn set_meta(&self, meta: Meta, value: &str) {
         unsafe{
-            sys::libvlc_media_set_meta(self.ptr, meta, to_cstr(value).as_ptr());
+            sys::libvlc_media_set_meta(self.ptr, meta as u32, to_cstr(value).as_ptr());
         }
     }
 
@@ -100,7 +100,7 @@ impl Media {
 
     /// Get current state of media descriptor object.
     pub fn state(&self) -> State {
-        unsafe{ sys::libvlc_media_get_state(self.ptr) }
+        unsafe{ sys::libvlc_media_get_state(self.ptr).into() }
     }
 
     /// Get duration (in ms) of media descriptor object item.
@@ -138,16 +138,17 @@ impl Media {
 
             for i in 0..n {
                 let p = p_track.offset(i as isize);
-                let type_specific_data = match (**p).i_type {
+                let i_type: TrackType = (**p).i_type.into();
+                let type_specific_data = match i_type {
                     TrackType::Audio => {
-                        let audio = (**p).audio();
+                        let audio = (**p).__bindgen_anon_1.audio;
                         MediaTrackUnion::Audio(AudioTrack{
                             channels: (*audio).i_channels,
                             rate:     (*audio).i_rate,
                         })
                     },
                     TrackType::Video => {
-                        let video = (**p).video();
+                        let video = (**p).__bindgen_anon_1.video;
                         MediaTrackUnion::Video(VideoTrack{
                             height:         (*video).i_height,
                             width:          (*video).i_width,
@@ -158,7 +159,7 @@ impl Media {
                         })
                     },
                     TrackType::Text => {
-                        let subtitle = (**p).subtitle();
+                        let subtitle = (**p).__bindgen_anon_1.subtitle;
                         MediaTrackUnion::Subtitle(SubtitleTrack{
                             encoding: from_cstr((*subtitle).psz_encoding)
                         })
@@ -169,7 +170,7 @@ impl Media {
                     codec:              (**p).i_codec,
                     original_fourcc:    (**p).i_original_fourcc,
                     id:                 (**p).i_id,
-                    track_type:         (**p).i_type,
+                    track_type:         (**p).i_type.into(),
                     profile:            (**p).i_profile,
                     level:              (**p).i_level,
                     bitrate:            (**p).i_bitrate,

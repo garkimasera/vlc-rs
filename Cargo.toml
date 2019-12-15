@@ -4,7 +4,9 @@ version = "0.3.0"
 authors = ["T. Okubo <t.okubo.rx78+github@gmail.com>"]
 
 description = "Rust bindings for libVLC media framework."
-keywords = ["libVLC", "bindings"]
+keywords = ["libVLC", "bindings", "multimedia"]
+categories = ["external-ffi-bindings", "multimedia"]
+documentation = "https://docs.rs/vlc-rs"
 repository = "https://github.com/garkimasera/vlc-rs"
 license = "MIT"
 readme = "README.md"
@@ -16,3 +18,5 @@ crate-type = ["rlib"]
 
 [dependencies]
 libc = "0.2"
+libvlc-sys = "0.2"
+

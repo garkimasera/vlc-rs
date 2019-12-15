@@ -2,7 +2,8 @@ use std::ffi::CString;
 use std::os::raw::c_char;
 use std::ptr;
 
-use crate::{Instance, sys};
+use vlc_sys as sys;
+use crate::Instance;
 use crate::tools::{from_cstr, to_cstr};
 
 pub trait Vlm {

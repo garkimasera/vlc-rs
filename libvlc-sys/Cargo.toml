@@ -1,0 +1,23 @@
+[package]
+name = "libvlc-sys"
+version = "0.2.0"
+authors = ["T. Okubo <t.okubo.rx78+devel@gmail.com>"]
+
+description = "libVLC C API"
+keywords = ["libVLC", "bindings"]
+categories = ["external-ffi-bindings", "multimedia"]
+repository = "https://github.com/garkimasera/vlc-rs"
+license = "MIT"
+edition = "2018"
+build = "build.rs"
+
+[lib]
+name = "vlc_sys"
+crate-type = ["rlib"]
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = "0.52"
+pkg-config = "0.3"
