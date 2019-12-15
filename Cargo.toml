@@ -20,6 +20,3 @@ crate-type = ["rlib"]
 libc = "0.2"
 libvlc-sys = "0.2"
 
-[features]
-default = []
-v3_00 = []

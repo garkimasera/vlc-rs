@@ -106,15 +106,15 @@ define_enum!(
     Gamma = libvlc_video_adjust_option_t_libvlc_adjust_Gamma,
 );
 
-#[cfg(feature = "v3_00")]
-define_enum!(
-    ParseFlag, libvlc_media_parse_flag_t;
-    DoInteract = libvlc_media_parse_flag_t_libvlc_media_do_interact,
-    FetchLocal = libvlc_media_parse_flag_t_libvlc_media_fetch_local,
-    FetchNetwork = libvlc_media_parse_flag_t_libvlc_media_fetch_network,
-    ParseLocal = libvlc_media_parse_flag_t_libvlc_media_parse_local,
-    ParseNetwork = libvlc_media_parse_flag_t_libvlc_media_parse_network,
-);
+// libvlc 3.0
+// define_enum!(
+//     ParseFlag, libvlc_media_parse_flag_t;
+//     DoInteract = libvlc_media_parse_flag_t_libvlc_media_do_interact,
+//     FetchLocal = libvlc_media_parse_flag_t_libvlc_media_fetch_local,
+//     FetchNetwork = libvlc_media_parse_flag_t_libvlc_media_fetch_network,
+//     ParseLocal = libvlc_media_parse_flag_t_libvlc_media_parse_local,
+//     ParseNetwork = libvlc_media_parse_flag_t_libvlc_media_parse_network,
+// );
 
 define_enum!(
     EventType, libvlc_event_e;
