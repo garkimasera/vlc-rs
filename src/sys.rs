@@ -74,6 +74,9 @@ extern "C" {
     pub fn libvlc_event_attach(
         p_event_manager: *mut libvlc_event_manager_t, i_event_type: libvlc_event_type_t,
         f_callback: libvlc_callback_t, user_data: *mut c_void) -> c_int;
+    pub fn libvlc_event_detach(
+            p_event_manager: *mut libvlc_event_manager_t, i_event_type: libvlc_event_type_t,
+            f_callback: libvlc_callback_t, p_user_data: *mut c_void) -> c_int;
     pub fn libvlc_event_type_name(event_type: libvlc_event_type_t) -> *const c_char;
     pub fn libvlc_log_get_context(
         ctx: *const libvlc_log_t, module: *const *const c_char, file: *const *const c_char,

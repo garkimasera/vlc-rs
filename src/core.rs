@@ -326,21 +326,35 @@ pub struct EventManager<'a> {
 }
 
 impl<'a> EventManager<'a> {
-    pub fn attach<F>(&self, event_type: EventType, callback: F) -> Result<(), ()>
+
+    pub fn detach(&self, event_type: EventType, registered_callback: *mut c_void) -> Result<(),()> {
+        let result =  unsafe {
+            sys::libvlc_event_detach(self.ptr, event_type as i32, event_manager_callback, registered_callback)
+        };
+        if result == 0 {
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
+    pub fn attach<F>(&self, event_type: EventType, callback: F) -> Result<*mut c_void, ()>
         where F: Fn(Event, VLCObject) + Send + 'static
     {
         // Explicit type annotation is needed
         let callback: Box<Box<dyn Fn(Event, VLCObject) + Send + 'static>> =
             Box::new(Box::new(callback));
+        
+        let raw = Box::into_raw(callback) as *mut c_void;
 
         let result = unsafe{
             sys::libvlc_event_attach(
                 self.ptr, event_type as i32, event_manager_callback,
-                Box::into_raw(callback) as *mut c_void)
+                raw)
         };
 
         if result == 0 {
-            Ok(())
+            Ok(raw)
         }else{
             Err(())
         }
